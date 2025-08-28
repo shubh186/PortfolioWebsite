@@ -1,0 +1,370 @@
+/* Main container for all sections */
+.main-container {
+  background: #31363f;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 120px 0 60px 0; /* Add top padding to account for fixed header and bottom padding for footer spacing */
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+/* Page sections with consistent spacing */
+.page-section {
+  width: 100%;
+  max-width: 1400px;
+  margin: 60px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Projects Content Wrapper */
+.projects-content-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1400px;
+  gap: 60px;
+  margin-top: 0;
+}
+
+/* Text Section Styles */
+.text-section {
+  flex: 1;
+  max-width: 500px;
+  text-align: left;
+  padding: 20px;
+}
+
+.text-section-title {
+  color: #8CBD8C;
+  line-height: 1.2;
+  margin-bottom: 40px;
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+  text-align: center;
+}
+
+.text-section-content {
+  font-size: 18px;
+  font-family: 'Times New Roman', Times, serif;
+  font-weight: 500;
+  line-height: 1.8;
+  margin-bottom: 20px;
+  color: #ffffff;
+  text-align: justify;
+}
+
+.page-section:first-child {
+  margin-top: 60px;
+  margin-bottom: 15px;
+}
+
+.page-section:last-child {
+  margin-bottom: 0;
+}
+
+/* React Honeycomb Container */
+.honeycomb-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  flex: 1;
+  position: relative;
+  margin-left: -65px;
+}
+
+/* Center the honeycomb grid so middle hex aligns with PROJECTS text */
+.honeycomb-container > div {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+/* Target the react-honeycomb SVG container */
+.honeycomb-container svg {
+  margin: 0 auto;
+  display: block;
+}
+
+/* Additional centering for react-honeycomb */
+.honeycomb-container [data-react-honeycomb] {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+/* Ensure the honeycomb grid is centered */
+.honeycomb-container .honeycomb {
+  margin: 0 auto;
+}
+
+/* Project Hexagon Styling */
+.project-hexagon {
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.3s ease-in-out;
+  background-color: #8CBD8C;
+  border: 3px solid rgba(140, 189, 140, 0.8);
+}
+
+/* Development hexagon styling */
+.dev-hexagon {
+  background-color: #8CBD8C !important;
+  border: 3px solid rgba(140, 189, 140, 0.8) !important;
+}
+
+/* Hexagon Hover Effect */
+.project-hexagon:hover {
+  transform: scale(1.05);
+  transition: transform 0.1s ease-in-out;
+  z-index: 10;
+  background-color: #7AB07A;
+  box-shadow: 0 8px 20px rgba(140, 189, 140, 0.6);
+}
+
+.dev-hexagon:hover {
+  background-color: #7AB07A !important;
+  box-shadow: 0 8px 20px rgba(140, 189, 140, 0.6) !important;
+}
+
+/* Selected Hexagon */
+[data-selected] {
+  border: 3px solid #7AB07A;
+  background-color: #7AB07A;
+  box-shadow: 0 10px 25px rgba(140, 189, 140, 0.8);
+}
+
+/* Hexagon Content */
+.hex-content {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #8CBD8C, #7AB07A);
+  color: white;
+}
+
+/* Icon styling */
+.hexagon-icon {
+  color: white;
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+/* Enhanced Project Popup Styles */
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 99999;
+  backdrop-filter: blur(5px);
+}
+
+.project-popup {
+  background: linear-gradient(145deg, #ffffff, #f8f9fa);
+  border-radius: 20px;
+  padding: 0;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: popupSlideIn 0.3s ease-out;
+  border: 1px solid #e0e0e0;
+}
+
+@keyframes popupSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.popup-header {
+  background: linear-gradient(135deg, #3a3d45, #2e3137);
+  color: white;
+  padding: 25px 30px;
+  border-radius: 20px 20px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+}
+
+.popup-header h2 {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 2rem;
+  cursor: pointer;
+  padding: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+}
+
+.close-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.popup-content {
+  padding: 30px;
+}
+
+.project-description {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: #333;
+  margin-bottom: 25px;
+  text-align: justify;
+}
+
+.technologies h4 {
+  color: #555;
+  margin-bottom: 15px;
+  font-size: 1.1rem;
+}
+
+.tech-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+.tech-tag {
+  background: linear-gradient(135deg, #3a3d45, #2e3137);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(58, 61, 69, 0.3);
+}
+
+.project-links {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.project-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 25px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.project-link.github {
+  background: linear-gradient(135deg, #24292e, #2f363d);
+  color: white;
+}
+
+.project-link.live {
+  background: linear-gradient(135deg, #8CBD8C, #7AB07A);
+  color: white;
+}
+
+.project-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive design for react-honeycomb */
+@media (max-width: 768px) {
+  .main-container {
+    padding: 90px 0 0 0; /* Reduce top padding for mobile */
+  }
+  
+  .projects-content-wrapper {
+    flex-direction: column;
+    gap: 40px;
+  }
+
+  .text-section {
+    max-width: 100%;
+    text-align: center;
+  }
+
+  .text-section-content {
+    text-align: center;
+  }
+
+  .honeycomb-container {
+    padding: 10px;
+    margin: 20px auto;
+  }
+  
+  .hexagon-icon {
+    font-size: 1.5rem;
+  }
+  
+  .project-hexagon:hover {
+    transform: scale(1.03);
+  }
+
+  .project-popup {
+    width: 95%;
+    margin: 20px;
+  }
+  
+  .popup-header {
+    padding: 20px 25px;
+  }
+  
+  .popup-header h2 {
+    font-size: 1.5rem;
+  }
+  
+  .popup-content {
+    padding: 25px;
+  }
+  
+  .project-links {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .hexagon-icon {
+    font-size: 1.5rem;
+  }
+}
