@@ -1,6 +1,6 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLinkedin, faGithub, faInstagram, faDiscord, faTwitter } from '@fortawesome/free-brands-svg-icons';
+import { faLinkedin, faGithub, faInstagram, faTwitter } from '@fortawesome/free-brands-svg-icons';
 import { faEnvelope } from '@fortawesome/free-solid-svg-icons';
 import '../App.css';
 
@@ -15,19 +15,16 @@ const Footer = () => {
           <a href="https://linkedin.com/in/shubhjoshi" target="_blank" rel="noopener noreferrer" className="social-link">
             <FontAwesomeIcon icon={faLinkedin} />
           </a>
-          <a href="https://github.com/shubhjoshi" target="_blank" rel="noopener noreferrer" className="social-link">
+          <a href="https://github.com/shubh186" target="_blank" rel="noopener noreferrer" className="social-link">
             <FontAwesomeIcon icon={faGithub} />
           </a>
-          <a href="mailto:shubh.joshi@gmail.com" className="social-link">
+          <a href="mailto:shubh.joshi@gmail.com" className="social-link" title="Send me an email">
             <FontAwesomeIcon icon={faEnvelope} />
           </a>
-          <a href="https://instagram.com/shubhjoshi" target="_blank" rel="noopener noreferrer" className="social-link">
+          <a href="https://instagram.com/shubhjoshi_" target="_blank" rel="noopener noreferrer" className="social-link">
             <FontAwesomeIcon icon={faInstagram} />
           </a>
-          <a href="https://discord.gg/shubhjoshi" target="_blank" rel="noopener noreferrer" className="social-link">
-            <FontAwesomeIcon icon={faDiscord} />
-          </a>
-          <a href="https://twitter.com/shubhjoshi" target="_blank" rel="noopener noreferrer" className="social-link">
+          <a href="https://twitter.com/shubh55435927" target="_blank" rel="noopener noreferrer" className="social-link">
             <FontAwesomeIcon icon={faTwitter} />
           </a>
         </div>

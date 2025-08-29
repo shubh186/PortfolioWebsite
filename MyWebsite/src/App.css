@@ -4,13 +4,13 @@
   background-color: transparent;
   padding: 40px 20px;
   margin-top: 0;
-  width: 100vw;
-  margin-left: calc(-50vw + 50%);
+  width: 100%;
   position: fixed;
   top: 0;
   left: 0;
   z-index: 1000;
   transition: background-color 0.3s ease;
+  box-sizing: border-box;
 }
 
 .header.scrolled {
@@ -861,6 +861,84 @@
   padding: 25px;
 }
 
+/* Mobile Responsive Styles for ID Card */
+@media (max-width: 768px) {
+  .id-card {
+    width: 320px;
+    border-radius: 14px;
+  }
+  
+  .id-card-header {
+    padding: 20px;
+    gap: 15px;
+  }
+  
+  .profile-picture {
+    width: 80px;
+    height: 80px;
+    border: 2px solid white;
+  }
+  
+  .id-info .name {
+    font-size: 1.5em;
+  }
+  
+  .id-info .title {
+    font-size: 1.1em;
+  }
+  
+  .id-card-body {
+    padding: 20px;
+  }
+  
+  .detail-row {
+    padding: 6px 0;
+  }
+  
+  .detail-row .label,
+  .detail-row .value {
+    font-size: 0.85em;
+  }
+}
+
+@media (max-width: 480px) {
+  .id-card {
+    width: 280px;
+    border-radius: 12px;
+  }
+  
+  .id-card-header {
+    padding: 18px;
+    gap: 12px;
+  }
+  
+  .profile-picture {
+    width: 70px;
+    height: 70px;
+  }
+  
+  .id-info .name {
+    font-size: 1.3em;
+  }
+  
+  .id-info .title {
+    font-size: 1em;
+  }
+  
+  .id-card-body {
+    padding: 18px;
+  }
+  
+  .detail-row {
+    padding: 5px 0;
+  }
+  
+  .detail-row .label,
+  .detail-row .value {
+    font-size: 0.8em;
+  }
+}
+
 .id-details {
   display: flex;
   flex-direction: column;
@@ -1022,6 +1100,38 @@
     0 15px 40px rgba(0, 0, 0, 0.4),
     0 0 0 2px #e0e0e0,
     0 0 0 4px #ffffff;
+}
+
+/* Pull Indicator Styles */
+.pull-indicator {
+  position: absolute;
+  bottom: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.arrow-container {
+  display: flex;
+  gap: 8px;
+}
+
+.arrow {
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 8px solid #8CBD8C;
+  animation: bounce 2s infinite;
+}
+
+.arrow:nth-child(2) {
+  animation-delay: 0.3s;
 }
 
 /* Floating Scroll Indicator Styles */

@@ -19,7 +19,7 @@ const HeadingText = () => {
     <div className="intro">
       Hi, I'm Shubh.
       <br />
-      A software developer / designer / creator
+      A software developer / designer / creator.
     </div>
   );
 };
@@ -28,45 +28,93 @@ const HeadingText = () => {
 const SubText = () => {
   return (
     <div className="about-me">
-      I specialize in creating innovative solutions that bridge the gap between design and functionality. 
-      My projects range from web applications to mobile apps, each crafted with attention to detail and user experience.
+      Though I could fit neatly into the modern labels of computer scientist or developer, that’s not really me. I specialize in creating experiences and solutions that bridge the gap between traditional software roles and the bigger picture.
       <br /><br />
-      Through continuous learning and experimentation, I stay updated with the latest technologies and best practices 
-      in software development. I believe in writing clean, maintainable code and building applications that make a difference.
+      I’m a plug-and-play builder — stepping into whatever role a project needs, from development to product — helping innovative ideas come to life and shaping them into meaningful experiences. Pull the ID card to see my resume!
     </div>
   );
 };
 
-// Sub-component 4: Spotify Card
+// Sub-component 4: Spotify Card with Authentication
 const SpotifyCard = () => {
   const [currentTrack, setCurrentTrack] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Fetch your Spotify data on component mount
+  // Check authentication status on mount
   useEffect(() => {
-    fetchSpotifyData();
-    
-    // Refresh every 30 seconds to keep it current
-    const interval = setInterval(fetchSpotifyData, 30000);
-    
-    return () => clearInterval(interval);
+    checkAuthStatus();
   }, []);
+
+  // Fetch data when authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchSpotifyData();
+      // Refresh every 30 seconds to keep it current
+      const interval = setInterval(fetchSpotifyData, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [isAuthenticated]);
+
+  const checkAuthStatus = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/spotify/auth-status');
+      const data = await response.json();
+      
+      if (data.authenticated && !data.expired) {
+        setIsAuthenticated(true);
+      } else {
+        setIsAuthenticated(false);
+        setError('Spotify not connected');
+      }
+    } catch (err) {
+      console.error('Error checking auth status:', err);
+      setError('Unable to check Spotify connection');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSpotifyAuth = async () => {
+    try {
+      console.log('🎵 Spotify card clicked! Starting authentication...');
+      
+      // Call local backend instead of ngrok
+      const response = await fetch('http://localhost:5000/api/spotify/auth');
+      console.log('📡 Auth response status:', response.status);
+      
+      const data = await response.json();
+      console.log('📋 Auth response data:', data);
+      
+      if (data.authUrl) {
+        console.log('🔗 Redirecting to Spotify auth URL:', data.authUrl);
+        // Open in same window - the redirect will bring them back
+        window.location.href = data.authUrl;
+      } else {
+        console.log('❌ No auth URL in response');
+      }
+    } catch (err) {
+      console.error('❌ Error getting auth URL:', err);
+      setError('Unable to connect to Spotify');
+    }
+  };
 
   const fetchSpotifyData = async () => {
     try {
-      setIsLoading(true);
       setError(null);
       
-      // This will fetch YOUR music data (not the user's)
-      // Using the backend server running on port 5000
+      // Call local backend instead of ngrok
       const response = await fetch('http://localhost:5000/api/spotify/current-track');
       
       if (response.ok) {
         const data = await response.json();
         setCurrentTrack(data);
+      } else if (response.status === 401) {
+        // Not authenticated
+        setIsAuthenticated(false);
+        setError('Spotify authentication expired');
       } else {
-        // Fallback to showing a default state
         setCurrentTrack({
           name: 'Music not available',
           artist: 'Check back later',
@@ -81,17 +129,61 @@ const SpotifyCard = () => {
         artist: 'Check back later',
         isPlaying: false
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
+  // Show authentication button if not authenticated
+  if (!isAuthenticated && !isLoading) {
+    console.log('🎵 Rendering Spotify auth card. isAuthenticated:', isAuthenticated, 'isLoading:', isLoading);
     return (
+      <div 
+        className="spotify-card" 
+        onClick={() => {
+          alert('Card clicked! Starting Spotify auth...');
+          console.log('🖱️ Card clicked! Calling handleSpotifyAuth...');
+          handleSpotifyAuth();
+        }} 
+        style={{ cursor: 'pointer', border: '2px solid red' }}
+        title="Click to connect Spotify"
+      >
+        <div className="album-art">
+          <div className="album-placeholder">
+            <div className="music-note">🎵</div>
+          </div>
+          <div className="playing-indicator">
+            🔗
+          </div>
+        </div>
+        <div className="track-info">
+          <div className="last-played">Connect Spotify</div>
+          <div className="track-title">Click to authenticate</div>
+          <div className="artist-name">Show your music here</div>
+        </div>
+        <div className="spotify-logo">
+          <div className="spotify-icon">
+            <div className="spotify-line"></div>
+            <div className="spotify-line"></div>
+            <div className="spotify-line"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
     <div className="spotify-card">
       <div className="album-art">
-        <div className="album-placeholder">
-          <div className="music-note">🎵</div>
-        </div>
+        {currentTrack?.albumArt ? (
+          <img 
+            src={currentTrack.albumArt} 
+            alt="Album Art" 
+            style={{ width: '100%', height: '100%', borderRadius: '8px', objectFit: 'cover' }}
+          />
+        ) : (
+          <div className="album-placeholder">
+            <div className="music-note">🎵</div>
+          </div>
+        )}
         <div className={`playing-indicator ${currentTrack?.isPlaying ? 'playing' : ''}`}>
           {currentTrack?.isPlaying ? '▶' : '⏸'}
         </div>
@@ -114,9 +206,9 @@ const SpotifyCard = () => {
           <div className="spotify-line"></div>
         </div>
       </div>
-      {error && (
-        <div className="spotify-error-overlay">
-          <div className="error-text">{error}</div>
+      {error && !isAuthenticated && (
+        <div className="spotify-error-overlay" onClick={handleSpotifyAuth} style={{ cursor: 'pointer' }}>
+          <div className="error-text">Click to reconnect</div>
         </div>
       )}
     </div>
@@ -213,6 +305,7 @@ const IdCard = () => {
   const [isSwinging, setIsSwinging] = useState(true); // Start with swinging enabled
   const [stringLength, setStringLength] = useState(60);
   const [hasDownloaded, setHasDownloaded] = useState(false); // Prevent multiple downloads
+  const [maxDragDistance, setMaxDragDistance] = useState(0); // Track maximum drag distance
   const cardRef = useRef(null);
   const containerRef = useRef(null);
   const stringRef = useRef(null);
@@ -246,6 +339,7 @@ const IdCard = () => {
   const handleMouseDown = useCallback((e) => {
     setIsDragging(true);
     setIsSwinging(false);
+    setMaxDragDistance(0); // Reset max distance for new drag session
     e.preventDefault();
   }, []);
 
@@ -272,20 +366,26 @@ const IdCard = () => {
     
     setDragPosition({ x: deltaX, y: deltaY });
     
-    // Download PDF when pulled beyond threshold (100px - reduced for easier testing)
-    if (distance > 100 && !hasDownloaded) {
-      console.log('PDF download triggered! Distance:', distance);
-      setHasDownloaded(true); // Prevent multiple downloads
-      downloadResume();
+    // Track maximum drag distance reached during this drag session
+    if (distance > maxDragDistance) {
+      setMaxDragDistance(distance);
     }
-  }, [isDragging, downloadResume]);
+  }, [isDragging, maxDragDistance]);
 
   const handleMouseUp = useCallback(() => {
     if (isDragging) {
       setIsDragging(false);
       
-      // Reset download flag for next drag session
+      // Check if maximum drag distance exceeded threshold and trigger download
+      if (maxDragDistance > 100 && !hasDownloaded) {
+        console.log('PDF download triggered on release! Max distance:', maxDragDistance);
+        setHasDownloaded(true); // Prevent multiple downloads
+        downloadResume();
+      }
+      
+      // Reset download flag and max distance for next drag session
       setHasDownloaded(false);
+      setMaxDragDistance(0);
       
       // Immediately reset to exact original position
       setDragPosition({ x: 0, y: 0 });
@@ -298,7 +398,7 @@ const IdCard = () => {
         setDragPosition({ x: 0, y: 0 });
       }, 100);
     }
-  }, [isDragging]);
+  }, [isDragging, maxDragDistance, hasDownloaded, downloadResume]);
 
   useEffect(() => {
     if (isDragging) {
@@ -369,6 +469,14 @@ const IdCard = () => {
               <span className="value">3+ Years</span>
             </div>
           </div>
+        </div>
+      </div>
+      
+      {/* Bouncing arrows to indicate pull direction */}
+      <div className="pull-indicator">
+        <div className="arrow-container">
+          <div className="arrow"></div>
+          <div className="arrow"></div>
         </div>
       </div>
     </div>

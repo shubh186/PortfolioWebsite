@@ -30,7 +30,7 @@ const ContactForm = ({ formData, isSubmitting, submitMessage, onInputChange, onS
     <div className="contact-form-section">
       <h2 className="contact-form-title">Let's Connect!</h2>
       <p className="contact-form-subtitle">
-        Interested in working together or reaching out?
+      Interested in creating something meaningful together? Think I could bring value to your business? Let’s connect — I’d love to chat and maybe grab a coffee.
       </p>
       <form className="contact-form" onSubmit={onSubmit}>
         <div className="form-group">
@@ -116,28 +116,15 @@ const AppPopup = ({ selectedApp, onClose }) => {
               <strong>School:</strong> {selectedApp.content.school}
             </div>
           )}
+          {selectedApp.content.title && (
+            <div className="project-description">
+              <strong>Title:</strong> {selectedApp.content.title}
+            </div>
+          )}
           <div className="project-description">
             <strong>Period:</strong> {selectedApp.content.period}
           </div>
-          <div className="technologies">
-            <h4>Key Points:</h4>
-            <ul className="tech-tags" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-              {selectedApp.content.points.map((point, idx) => (
-                <li key={idx} style={{ 
-                  background: 'linear-gradient(135deg, #3a3d45, #2e3137)',
-                  color: 'white',
-                  padding: '8px 16px',
-                  borderRadius: '20px',
-                  fontSize: '0.9rem',
-                  fontWeight: '500',
-                  boxShadow: '0 2px 8px rgba(58, 61, 69, 0.3)',
-                  marginBottom: '8px'
-                }}>
-                  {point}
-                </li>
-              ))}
-            </ul>
-          </div>
+
         </div>
       </div>
     </div>
@@ -162,10 +149,10 @@ const Experience = () => {
       title: 'Work Experience', 
       icon: '💼',
       content: {
-        company: 'Tech Corp',
-        role: 'Software Engineer',
-        period: '2022 – Present',
-        points: ['Built scalable React applications', 'Designed REST APIs', 'Optimized database performance', 'Led team of 3 developers']
+        company: 'Prep Doctors Corp',
+        role: 'Software Developer | Product Manager | Product Owner',
+        period: '01/24 – Present',
+        points: ['Developing scalable systems', 'API Development', 'LLM', 'Led team of 3 developers',]
       }
     },
     { 
@@ -173,9 +160,9 @@ const Experience = () => {
       title: 'Work Experience', 
       icon: '💼',
       content: {
-        company: 'Tech Corp',
-        role: 'Software Engineer',
-        period: '2022 – Present',
+        company: 'Sun Life Financial',
+        role: 'Software Developer',
+        period: '01/22 – 08/22',
         points: ['Built scalable React applications', 'Designed REST APIs', 'Optimized database performance', 'Led team of 3 developers']
       }
     },
@@ -184,9 +171,9 @@ const Experience = () => {
       title: 'Work Experience', 
       icon: '💼',
       content: {
-        company: 'Tech Corp',
-        role: 'Software Engineer',
-        period: '2022 – Present',
+        company: 'CIBC',
+        role: 'Application Developer',
+        period: '05/20 – 12/20',
         points: ['Built scalable React applications', 'Designed REST APIs', 'Optimized database performance', 'Led team of 3 developers']
       }
     },
@@ -195,10 +182,10 @@ const Experience = () => {
       title: 'Education', 
       icon: '🎓',
       content: {
-        degree: 'Computer Science',
-        school: 'University of Technology',
-        period: '2018 – 2022',
-        points: ['GPA: 3.8/4.0', 'Dean\'s List 3 semesters', 'Senior Capstone Project', 'Relevant Coursework: Data Structures, Algorithms, Database Systems']
+        degree: 'Bachelor of Computng - Honours Computer Science',
+        school: 'University of Guelph',
+        period: '2018 – 2023',
+        points: ['GPA: 3.4/4.0', 'Dean\'s List 3 semesters', 'Senior Capstone Project', 'Relevant Coursework: Data Structures, Algorithms, Database Systems']
       }
     },
     { 
@@ -207,7 +194,7 @@ const Experience = () => {
       icon: '📝',
       content: {
         title: 'Todo List',
-        period: 'Current Tasks',
+        period: 'Complete AI Chatbot by end of 2025',
         points: ['Complete portfolio website', 'Learn new technologies', 'Contribute to open source', 'Build side projects']
       }
     },
@@ -216,8 +203,8 @@ const Experience = () => {
       title: 'Volunteering', 
       icon: '🤝',
       content: {
-        title: 'Volunteer Work',
-        period: '2020 – Present',
+        title: 'Tech Consultant - Shrimad Rajchandra Mission Dharampur',
+        period: '2018 – Present',
         points: ['Mentored junior developers', 'Taught coding workshops', 'Organized tech meetups', 'Contributed to community projects']
       }
     }

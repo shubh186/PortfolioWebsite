@@ -80,6 +80,7 @@
   flex: 1;
   position: relative;
   margin-left: -65px;
+  overflow: hidden;
 }
 
 /* Center the honeycomb grid so middle hex aligns with PROJECTS text */
@@ -249,7 +250,9 @@
   line-height: 1.7;
   color: #333;
   margin-bottom: 25px;
-  text-align: justify;
+  text-align: left;
+  word-spacing: normal;
+  letter-spacing: normal;
 }
 
 .technologies h4 {
@@ -312,11 +315,17 @@
 @media (max-width: 768px) {
   .main-container {
     padding: 90px 0 0 0; /* Reduce top padding for mobile */
+    overflow-x: hidden;
+    width: 100%;
   }
   
   .projects-content-wrapper {
     flex-direction: column;
     gap: 40px;
+    width: 100%;
+    max-width: 100%;
+    padding: 0 20px;
+    box-sizing: border-box;
   }
 
   .text-section {
@@ -330,7 +339,9 @@
 
   .honeycomb-container {
     padding: 10px;
-    margin: 20px auto;
+    margin: 0 auto;
+    margin-left: 0;
+    overflow: visible;
   }
   
   .hexagon-icon {

@@ -21,6 +21,23 @@ import './Main.css';
 function Main() {
   // State for managing project popup
   const [openCard, setOpenCard] = useState(null);
+  const [columns, setColumns] = useState(3);
+
+  useEffect(() => {
+    const updateColumns = () => {
+      if (window.innerWidth < 480) {
+        setColumns(1);   // stack vertically on very small screens
+      } else if (window.innerWidth < 768) {
+        setColumns(2);   // tablet
+      } else {
+        setColumns(3);   // desktop
+      }
+    };
+
+    updateColumns();
+    window.addEventListener("resize", updateColumns);
+    return () => window.removeEventListener("resize", updateColumns);
+  }, []);
 
   // Close popup on Escape key
   useEffect(() => {
@@ -40,87 +57,81 @@ function Main() {
   // Project data for honeycomb grid
   const projectData = [
     {
-      id: 'meditation',
+      id: 'Jain',
       icon: faOm,
-      title: 'Meditation App',
-      description: 'A peaceful meditation application with guided sessions and mindfulness exercises.',
-      technologies: ['React', 'Node.js', 'MongoDB'],
-      githubLink: '#',
-      liveLink: '#'
+      title: 'Jain Bites',
+      description: 'Developed a cross-platform mobile application to address the lack of vegetarian and Jain food options across the Greater Toronto Area. Currently available on Android and iOS, garnered a user base of over 2000 users.',
+      technologies: ['JavaScript', 'HTML/CSS', 'Google Maps API', 'Git', 'Firebase', 'Apache Cordova', 'Google Sheets API'],
+      githubLink: 'https://github.com/shubh186/JainFoodApp',
     },
     {
-      id: 'garden',
+      id: 'Plant',
       icon: faSeedling,
-      title: 'Garden Tracker',
-      description: 'Track your plants growth and get personalized care recommendations.',
-      technologies: ['React Native', 'Firebase', 'ML Kit'],
-      githubLink: '#',
-      liveLink: '#'
+      title: 'Bloom Buddy',
+      description: ' Expiremented and developed a mobile application to track plant growth and get personalized plant care recommendations — designed to rekindle interest in plant care and address the growing decline in plant nurturing habits.',
+      technologies: ['Flutter', 'Dart', 'Git'],
+      githubLink: 'https://github.com/shubh186/BloomBuddy',
     },
     {
-      id: 'chess',
+      id: 'Chess',
       icon: faChess,
-      title: 'Chess Engine',
-      description: 'An intelligent chess game with AI opponent and move analysis.',
-      technologies: ['Python', 'TensorFlow', 'Flask'],
-      githubLink: '#',
-      liveLink: '#'
+      title: 'Chess',
+      description: ' Developed and optimized an intelligent chess game with an AI opponent and move analysis.',
+      technologies: ['Python'],
+      githubLink: 'https://github.com/shubh186/Chess-AI',
     },
     {
-      id: 'portfolio',
+      id: 'Portfolio',
       icon: faComputer,
       title: 'Portfolio Website',
-      description: 'This very website - a responsive portfolio showcasing my projects and skills.',
-      technologies: ['React', 'CSS3', 'JavaScript'],
+      description: 'This very website - a responsive portfolio showcasing my creativity and skills.',
+      technologies: ['React,js', 'Node.js', 'Express.js', 'JavaScript', 'MSSQL', 'API Integration', 'HTML5/CSS3', 'Git'],
       githubLink: '#',
       liveLink: '#'
     },
     {
-      id: 'terminal',
+      id: 'NeuralNetwork',
       icon: faNetworkWired,
       title: 'Neural Network',
-      description: 'A deep learning neural network implementation with real-time training visualization.',
-      technologies: ['Python', 'TensorFlow', 'Keras'],
-      githubLink: '#',
-      liveLink: '#'
+      description: 'Developed a feedforward neural network from scratch using NumPy to analyze the MNIST dataset with real-time training visualization.',
+      technologies: ['Python'],
+      githubLink: 'https://github.com/shubh186/Artificial-Neural-Network',
     },
     {
-      id: 'rocket',
+      id: 'Chatbot',
       icon: faBrain,
-      title: 'AI Data Insights',
-      description: 'Interactive dashboards and visualizations for exploring datasets with AI-powered analytics.',
-      technologies: ['React', 'D3.js', 'Python', 'TensorFlow'],
+      title: 'AI Chatbot',
+      description: 'Currently developing a front desk chatbot/voicebot that can answer calls + book appointments into Google Calendar. Will further implement integration into varied booking systems.',
+      technologies: ['OpenAI', 'Pinecone', 'Langchain', 'Python', 'Google Calendar API', 'NLP', 'STT', 'Git', 'Docker', 'Kubernetes', 'React.js', 'Node.js'],
       githubLink: '#',
       liveLink: '#'
     },
     {
-      id: 'gamepad',
+      id: 'SRLC/SRMD',
       icon: faHandsHelping,
-      title: 'Volunteer Platform',
-      description: 'A community platform connecting volunteers with local organizations and causes.',
-      technologies: ['React', 'Node.js', 'MongoDB', 'Stripe'],
+      title: 'Technology Consultant',
+      description: 'Serving as a Technology Consultant for Shrimad Rajchandra Mission Dharampur (non-profit), where I develop and manage projects that leverage technology to create a meaningful impact within our society. Passionate about using tech as a force for good to make a real difference in the world.',
+      technologies: ['Zoho', 'Javascript', 'HTML/CSS', 'Python', 'Product Management'],
       githubLink: '#',
       liveLink: '#'
     },
     {
-      id: 'insights',
+      id: 'PrepX',
       icon: faGraduationCap,
       title: 'Learning Management System',
-      description: 'A comprehensive LMS platform with course management, student tracking, and interactive learning modules.',
-      technologies: ['React', 'Node.js', 'PostgreSQL', 'AWS'],
+      description: 'Architected and developed a 20-microservice Medical Examination & Learning Management Platform, leading the full lifecycle from system design and product strategy to development, testing, and DevOps. Managed and coordinated cross-functional teams to deliver a scalable, high-performance solution supporting complex medical assessments and learning workflows. ',
+      technologies: ['React.js', 'Node.js', 'Next.js', 'Kubernetes', 'Docker', 'MySQL', 'Redis', 'socket.IO', 'API Integration', 'Git'],
       githubLink: '#',
-      liveLink: '#',
-      status: 'dev'
+      liveLink: '#'
     },
     {
-      id: 'cli-tools',
+      id: 'Automation Scripts',
       icon: faRobot,
-      title: 'ML CLI Tools',
-      description: 'Handy developer utilities packaged as cross-platform CLI tools.',
-      technologies: ['Node.js', 'TypeScript'],
+      title: 'Automation Scripts',
+      description: 'I frequently develop automation scripts to streamline workflows, boost productivity, and even simplify tasks for family and friends. One notable project is a development time tracker: an automation that detects when I open my designated IDE to begin coding and when I close it to end a session. The data is automatically logged and integrated with my Google Calendar, giving me precise insights into how much time I spend coding each week.',
+      technologies: ['Python', 'Google Calendar API', 'Git'],
       githubLink: '#',
       liveLink: '#',
-      status: 'dev'
     }
   ];
 
@@ -153,7 +164,7 @@ function Main() {
           {/* Honeycomb Grid */}
           <div className="honeycomb-container">
             <Honeycomb
-              columns={3}
+              columns={columns}
               size={120}
               items={projectData}
               renderItem={(project, index) => (
@@ -190,12 +201,10 @@ function Main() {
           <div className="text-section">
             <h2 className="text-section-title">About My Work</h2>
             <p className="text-section-content">
-              I specialize in creating innovative solutions that bridge the gap between design and functionality. 
-              My projects range from web applications to mobile apps, each crafted with attention to detail and user experience.
+            My projects are a direct reflection of who I am. My mind wanders, and I actively step into different worlds to understand others’ challenges and perspectives. That curiosity has led me to explore automation, mobile development, software engineering, and AI/ML — each project aiming to address real-world problems in its own way.
             </p>
             <p className="text-section-content">
-              Through continuous learning and experimentation, I stay updated with the latest technologies and best practices 
-              in software development. I believe in writing clean, maintainable code and building applications that make a difference.
+            Every build carries meaning. Even if it’s interpreted differently by others, to me it’s part of a growing beehive of ideas and achievements. I don’t just create products — I create stories.
             </p>
           </div>
         </div>
@@ -234,21 +243,12 @@ function Main() {
                 <div className="project-links">
                   <a 
                     href={projectData.find(p => p.id === openCard)?.githubLink} 
-                    className="project-link github"
+                    className="project-link live"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
                     <FontAwesomeIcon icon={faTerminal} />
                     View Code
-                  </a>
-                  <a 
-                    href={projectData.find(p => p.id === openCard)?.liveLink} 
-                    className="project-link live"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <FontAwesomeIcon icon={faComputer} />
-                    Live Demo
                   </a>
                 </div>
               </div>

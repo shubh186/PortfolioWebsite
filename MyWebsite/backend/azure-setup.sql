@@ -1,6 +1,3 @@
--- Azure SQL Server Database Setup Script
--- Run this script in Azure Portal Query Editor
-
 -- Create contact submissions table
 IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='contact_submissions' AND xtype='U')
 CREATE TABLE contact_submissions (
