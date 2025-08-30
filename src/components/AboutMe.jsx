@@ -59,7 +59,7 @@ const SpotifyCard = () => {
 
   const checkAuthStatus = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/spotify/auth-status');
+      const response = await fetch('https://portfolio-website-7biejgirm-shubh-joshis-projects.vercel.app/api/spotify/auth-status');
       const data = await response.json();
       
       if (data.authenticated && !data.expired) {
@@ -80,8 +80,8 @@ const SpotifyCard = () => {
     try {
       console.log('🎵 Spotify card clicked! Starting authentication...');
       
-      // Call local backend instead of ngrok
-      const response = await fetch('http://localhost:5000/api/spotify/auth');
+      // Call Vercel backend
+      const response = await fetch('https://portfolio-website-7biejgirm-shubh-joshis-projects.vercel.app/api/spotify/auth');
       console.log('📡 Auth response status:', response.status);
       
       const data = await response.json();
@@ -104,8 +104,8 @@ const SpotifyCard = () => {
     try {
       setError(null);
       
-      // Call local backend instead of ngrok
-      const response = await fetch('http://localhost:5000/api/spotify/current-track');
+      // Call Vercel backend
+      const response = await fetch('https://portfolio-website-7biejgirm-shubh-joshis-projects.vercel.app/api/spotify/current-track');
       
       if (response.ok) {
         const data = await response.json();

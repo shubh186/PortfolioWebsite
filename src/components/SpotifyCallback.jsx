@@ -29,7 +29,7 @@ const SpotifyCallback = () => {
 
         // Exchange the authorization code for access and refresh tokens
         try {
-          const response = await fetch('http://localhost:5000/api/spotify/token', {
+          const response = await fetch('https://portfolio-website-7biejgirm-shubh-joshis-projects.vercel.app/api/spotify/token', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ code })
@@ -51,7 +51,7 @@ const SpotifyCallback = () => {
             
             // Also ensure the server has the token by sending it explicitly
             try {
-              await fetch('http://localhost:5000/api/spotify/store-token', {
+              await fetch('https://portfolio-website-7biejgirm-shubh-joshis-projects.vercel.app/api/spotify/store-token', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
