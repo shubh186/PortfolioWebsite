@@ -30,7 +30,7 @@ const ContactForm = ({ formData, isSubmitting, submitMessage, onInputChange, onS
     <div className="contact-form-section">
       <h2 className="contact-form-title">Let's Connect!</h2>
       <p className="contact-form-subtitle">
-      Interested in creating something meaningful together? Think I could bring value to your business? Let’s connect — I’d love to chat and maybe grab a coffee.
+      Interested in creating something meaningful together? Think I could bring value to your business? Let’s connect!
       </p>
       <form className="contact-form" onSubmit={onSubmit}>
         <div className="form-group">
@@ -257,7 +257,7 @@ const Experience = () => {
   return (
     <section className="page-section">
       <div className="skills-tag">Experience</div>
-      <div className="skills-subtitle">Interact with my apps...or me! 😗</div>
+      <div className="skills-subtitle">Interact with my apps! 🫰</div>
       <div className="experience-content-wrapper">
         <IPhoneScreen apps={apps} onAppClick={handleAppClick} />
         <ContactForm 

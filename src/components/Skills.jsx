@@ -11,7 +11,7 @@ const Skills = () => {
   return (
     <section className="page-section">
       <div className="skills-tag">Skills</div>
-      <div className="skills-subtitle">I may have learned a thing or few 🤷‍♂️</div>
+      <div className="skills-subtitle">I may have learned a thing or few! 🤷‍♂️</div>
       <div className="skills-screen">
         <div className="skills-screen-content">
           <div className="keyboard-layout">

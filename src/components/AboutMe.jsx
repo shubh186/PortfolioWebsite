@@ -19,7 +19,7 @@ const HeadingText = () => {
     <div className="intro">
       Hi, I'm Shubh.
       <br />
-      A software developer / designer / creator.
+      A software developer | designer | creator.
     </div>
   );
 };
