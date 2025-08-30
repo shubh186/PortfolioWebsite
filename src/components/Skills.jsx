@@ -5,7 +5,7 @@ const Skills = () => {
   const skillsData = {
     languages: ['Python', 'JavaScript', 'C/C++', 'Java', 'PowerShell', 'Dart'],
     frameworks: ['React.js', 'Node.js', 'Next.js', 'Express.js', 'Azure Cloud', 'MySQL', 'MSSQL', 'PostgreSQL', 'MongoDB', 'Flutter', 'Selenium', 'Apache JMeter', 'REST API'],
-    tools: ['Git', 'GitHub', 'Azure Pipelines', 'DevOps', 'VS Code', 'Google APIs', 'LLMs', 'Zapier', 'Postman', 'Docker']
+    tools: ['Git/GitHub', 'LLMs', 'Pinecone', 'Azure Pipelines (CI/CD)', 'Azure DevOps/Jira', 'VS Code', 'Google APIs', 'Zoho', 'Zapier', 'Postman', 'Docker', 'Figma', 'WordPress', 'Hubspot', ]
   };
 
   return (
