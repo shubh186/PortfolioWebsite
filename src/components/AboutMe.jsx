@@ -311,23 +311,23 @@ const IdCard = () => {
   const stringRef = useRef(null);
 
   const downloadResume = () => {
-    console.log('Attempting to download development.pdf...');
+    console.log('Attempting to download Development.pdf...');
     
     // Check if the file exists first
-    fetch('/development.pdf')
+    fetch('/Development.pdf')
       .then(response => {
         if (response.ok) {
           console.log('Development file found, downloading...');
           const link = document.createElement('a');
-          link.href = '/development.pdf';
-          link.download = 'development.pdf';
+          link.href = '/Development.pdf';
+          link.download = 'Development.pdf';
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
           console.log('Download initiated');
         } else {
           console.error('Development file not found (404)');
-          alert('Development file not found. Please ensure development.pdf is in the public folder.');
+          alert('Development file not found. Please ensure Development.pdf is in the public folder.');
         }
       })
       .catch(error => {
@@ -443,7 +443,7 @@ const IdCard = () => {
       >
         <div className="id-card-header">
           <div className="profile-picture">
-            <img src="/images/me.jpg" alt="Shubh Joshi" />
+            <img src={process.env.PUBLIC_URL + '/images/me.jpg'} alt="Shubh Joshi" />
           </div>
           <div className="id-info">
             <div className="name">Shubh Joshi</div>
