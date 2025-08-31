@@ -230,7 +230,8 @@ const Experience = () => {
     setSubmitMessage('');
     
     try {
-      const response = await fetch('https://shubhjoshi-portfolio.vercel.app/api/contact', {
+      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://shubhjoshi-portfolio.vercel.app';
+      const response = await fetch(`${BACKEND_URL}/api/contact`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -59,7 +59,8 @@ const SpotifyCard = () => {
 
   const checkAuthStatus = async () => {
     try {
-      const response = await fetch('https://shubhjoshi-portfolio.vercel.app/api/spotify/auth-status');
+      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://shubhjoshi-portfolio.vercel.app';
+      const response = await fetch(`${BACKEND_URL}/api/spotify/auth-status`);
       const data = await response.json();
       
       if (data.authenticated && !data.expired) {
@@ -81,7 +82,8 @@ const SpotifyCard = () => {
       console.log('🎵 Spotify card clicked! Starting authentication...');
       
       // Call Vercel backend
-      const response = await fetch('https://shubhjoshi-portfolio.vercel.app/api/spotify/auth');
+      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://shubhjoshi-portfolio.vercel.app';
+      const response = await fetch(`${BACKEND_URL}/api/spotify/auth`);
       console.log('📡 Auth response status:', response.status);
       
       const data = await response.json();
@@ -105,7 +107,8 @@ const SpotifyCard = () => {
       setError(null);
       
       // Call Vercel backend
-      const response = await fetch('https://shubhjoshi-portfolio.vercel.app/api/spotify/current-track');
+      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://shubhjoshi-portfolio.vercel.app';
+      const response = await fetch(`${BACKEND_URL}/api/spotify/current-track`);
       
       if (response.ok) {
         const data = await response.json();
