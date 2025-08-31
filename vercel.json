@@ -2,17 +2,17 @@
   "version": 2,
   "builds": [
     {
-      "src": "server.js",
+      "src": "Backend/server.js",
       "use": "@vercel/node",
       "config": {
-        "installCommand": "npm install --legacy-peer-deps"
+        "installCommand": "cd Backend && npm install --legacy-peer-deps"
       }
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "/server.js"
+      "dest": "/Backend/server.js"
     }
   ],
   "env": {
