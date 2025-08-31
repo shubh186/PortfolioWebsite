@@ -13,7 +13,9 @@ const PORT = process.env.PORT || 5000;
 app.use(cors({
   origin: [
     'http://localhost:3000',
-    'https://shubh186.github.io/portfolio-website',  // Full GitHub Pages URL
+    'https://shubh186.github.io',
+    'https://shubh186.github.io/PortfolioWebsite',
+    'https://shubh186.github.io/portfolio-website',
     'https://shubhjoshi-portfolio.vercel.app'
   ],
   credentials: true
