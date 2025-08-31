@@ -16,7 +16,6 @@ function App() {
         <Header />
         <Routes>
           <Route path="/" element={<Main />} />
-          <Route path="/PortfolioWebsite" element={<Main />} />
           <Route path="/callback" element={<SpotifyCallback />} />
         </Routes>
         <Footer />
