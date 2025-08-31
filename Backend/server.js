@@ -24,7 +24,7 @@ app.use(express.static('public'));
 // Spotify API configuration
 const SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
 const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
-const SPOTIFY_REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI || 'https://adf26191d9aa.ngrok-free.app/callback';
+const SPOTIFY_REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI || 'https://shubhjoshi-portfolio.vercel.app/callback';
 
 // Database configuration
 const dbConfig = {
@@ -617,15 +617,6 @@ process.on('SIGTERM', () => {
   process.exit(0);
 });
 
-app.listen(PORT, async () => {
-  console.log(`🚀 Spotify Backend Server running on port ${PORT}`);
-  console.log(`📱 Health check: http://localhost:${PORT}/api/health`);
-  console.log(`🎵 Spotify auth: http://localhost:${PORT}/api/spotify/auth`);
-  console.log(`🎵 Spotify auth status: http://localhost:${PORT}/api/spotify/auth-status`);
-  console.log(`🎵 Spotify current track: http://localhost:${PORT}/api/spotify/current-track`);
-  console.log(`📧 Contact form: http://localhost:${PORT}/api/contact`);
-  console.log(`💾 Tokens will be persisted to: ${TOKENS_FILE}`);
-  
-  // Connect to database
-  await connectDB();
-});
+connectDB(); // start DB connection on cold start
+
+module.exports = app; // let Vercel handle serving
