@@ -16,6 +16,8 @@ app.use(cors({
     'https://shubh186.github.io',
     'https://shubh186.github.io/PortfolioWebsite',
     'https://shubh186.github.io/portfolio-website',
+    'https://shubh186.github.io/PortfolioWebsite/',
+    'https://shubh186.github.io/portfolio-website/',
     'https://shubhjoshi-portfolio.vercel.app'
   ],
   credentials: true
@@ -43,23 +45,35 @@ const dbConfig = {
 
 // Database connection pool
 let pool;
+async function getDbPool() {
+  if (!pool) {
+    try {
+      // Check if database configuration is complete
+      if (!process.env.DB_HOST || !process.env.DB_NAME || !process.env.DB_USER || !process.env.DB_PASSWORD) {
+        console.log('⚠️  Database configuration incomplete. Skipping database connection.');
+        console.log('   To enable database features, set the following environment variables:');
+        console.log('   - DB_HOST (Azure SQL Server name)');
+        console.log('   - DB_NAME (Database name)');
+        console.log('   - DB_USER (Database username)');
+        console.log('   - DB_PASSWORD (Database password)');
+        return null;
+      }
+      
+      pool = await sql.connect(dbConfig);
+      console.log('✅ Connected to Azure SQL Database');
+    } catch (err) {
+      console.error('❌ Database connection failed:', err);
+      throw err;
+    }
+  }
+  return pool;
+}
+
 async function connectDB() {
   try {
-    // Check if database configuration is complete
-    if (!process.env.DB_HOST || !process.env.DB_NAME || !process.env.DB_USER || !process.env.DB_PASSWORD) {
-      console.log('⚠️  Database configuration incomplete. Skipping database connection.');
-      console.log('   To enable database features, set the following environment variables:');
-      console.log('   - DB_HOST (Azure SQL Server name)');
-      console.log('   - DB_NAME (Database name)');
-      console.log('   - DB_USER (Database username)');
-      console.log('   - DB_PASSWORD (Database password)');
-      return;
-    }
-    
-    pool = await sql.connect(dbConfig);
-    console.log('✅ Connected to Azure SQL Database');
+    await getDbPool();
   } catch (err) {
-    console.error('❌ Database connection failed:', err);
+    console.error('❌ Initial database connection failed:', err);
   }
 }
 
@@ -546,45 +560,52 @@ app.post('/api/contact', async (req, res) => {
     console.log('📧 Contact form submission:', { name, email, reason });
     
     // Save to database
-    if (pool) {
-      const query = `
-        INSERT INTO contact_submissions (name, email, reason, created_at)
-        VALUES (@name, @email, @reason, @created_at)
-      `;
-      
-      const request = pool.request()
-        .input('name', sql.NVarChar, name)
-        .input('email', sql.NVarChar, email)
-        .input('reason', sql.NVarChar, reason)
-        .input('created_at', sql.DateTime2, new Date());
-      
-      await request.query(query);
-      console.log('💾 Contact submission saved to database');
-      
-      res.json({ 
-        success: true, 
-        message: 'Thank you for your message! I\'ll get back to you soon.',
-        timestamp: new Date().toISOString()
-      });
-    } else {
-      console.log('⚠️ Database not connected, storing locally instead');
-      // Fallback: store locally if DB is not connected
-      const contactData = { name, email, reason, timestamp: new Date().toISOString() };
-      const contactFile = path.join(__dirname, 'contact_submissions.json');
-      
-      let submissions = [];
-      if (fs.existsSync(contactFile)) {
-        submissions = JSON.parse(fs.readFileSync(contactFile, 'utf8'));
+    try {
+      const pool = await getDbPool();
+      if (pool) {
+        const query = `
+          INSERT INTO contact_submissions (name, email, reason, created_at)
+          VALUES (@name, @email, @reason, @created_at)
+        `;
+        
+        const request = pool.request()
+          .input('name', sql.NVarChar, name)
+          .input('email', sql.NVarChar, email)
+          .input('reason', sql.NVarChar, reason)
+          .input('created_at', sql.DateTime2, new Date());
+        
+        await request.query(query);
+        console.log('💾 Contact submission saved to database');
+        
+        res.json({ 
+          success: true, 
+          message: 'Thank you for your message! I\'ll get back to you soon.',
+          timestamp: new Date().toISOString()
+        });
+        return;
       }
-      submissions.push(contactData);
-      fs.writeFileSync(contactFile, JSON.stringify(submissions, null, 2));
-      
-      res.json({ 
-        success: true, 
-        message: 'Thank you for your message! I\'ll get back to you soon.',
-        timestamp: new Date().toISOString()
-      });
+    } catch (dbError) {
+      console.error('❌ Database error:', dbError);
+      // Continue to fallback storage
     }
+    
+    // Fallback: store locally if DB is not connected or fails
+    console.log('⚠️ Database not connected, storing locally instead');
+    const contactData = { name, email, reason, timestamp: new Date().toISOString() };
+    const contactFile = path.join(__dirname, 'contact_submissions.json');
+    
+    let submissions = [];
+    if (fs.existsSync(contactFile)) {
+      submissions = JSON.parse(fs.readFileSync(contactFile, 'utf8'));
+    }
+    submissions.push(contactData);
+    fs.writeFileSync(contactFile, JSON.stringify(submissions, null, 2));
+    
+    res.json({ 
+      success: true, 
+      message: 'Thank you for your message! I\'ll get back to you soon.',
+      timestamp: new Date().toISOString()
+    });
     
   } catch (error) {
     console.error('❌ Contact form error:', error);
