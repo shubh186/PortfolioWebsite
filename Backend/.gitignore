@@ -1,0 +1,17 @@
+# Environment variables
+.env
+
+# Logs
+*.log
+npm-debug.log*
+
+# Runtime data
+user_tokens.json
+contact_submissions.json
+
+# Vercel
+.vercel
+
+# IDE
+.vscode/
+.idea/

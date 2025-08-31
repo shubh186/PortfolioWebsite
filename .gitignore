@@ -1,3 +1,35 @@
+# Dependencies
 node_modules/
-MyWebsite/backend/.env
+Frontend/node_modules/
+Backend/node_modules/
+
+# Environment variables
+Backend/.env
+.env
+
+# Build outputs
+Frontend/build/
+Backend/dist/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# Vercel
 .vercel
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
