@@ -599,6 +599,11 @@ app.use((error, req, res, next) => {
   res.status(500).json({ error: 'Internal server error' });
 });
 
+// Root handler
+app.get('/', (req, res) => {
+  res.send('🚀 Backend is running! Try /api/health or /api/spotify/auth');
+});
+
 // 404 handler
 app.use('*', (req, res) => {
   res.status(404).json({ error: 'Endpoint not found' });
