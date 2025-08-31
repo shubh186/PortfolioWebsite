@@ -16,8 +16,6 @@ app.use(cors({
     'https://shubh186.github.io',
     'https://shubh186.github.io/PortfolioWebsite',
     'https://shubh186.github.io/portfolio-website',
-    'https://shubh186.github.io/PortfolioWebsite/',
-    'https://shubh186.github.io/portfolio-website/',
     'https://shubhjoshi-portfolio.vercel.app'
   ],
   credentials: true
