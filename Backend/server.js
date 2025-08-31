@@ -11,7 +11,11 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:3000', 'https://adf26191d9aa.ngrok-free.app'],
+  origin: [
+    'http://localhost:3000',
+    'https://shubh186.github.io/portfolio-website',  // Full GitHub Pages URL
+    'https://shubhjoshi-portfolio.vercel.app'
+  ],
   credentials: true
 }));
 app.use(express.json());
