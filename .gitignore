@@ -8,7 +8,7 @@ Backend/.env
 .env
 
 # Build outputs
-Frontend/build/
+# Frontend/build/
 Backend/dist/
 
 # Logs
