@@ -1,0 +1,48 @@
+# Development files
+node_modules
+.git
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Build artifacts (except Frontend/build which is needed)
+Backend/node_modules
+Frontend/node_modules
+
+# IDE files
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Local development
+*.local
+.cache
+
+# Documentation (optional - remove if you want docs deployed)
+*.md
+!README.md
+
+# Test files
+__tests__
+*.test.js
+*.spec.js
+coverage/
+
