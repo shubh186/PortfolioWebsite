@@ -318,7 +318,11 @@ async function getUserAccessToken(userId = 'default_user') {
 // Get your current playing track
 app.get('/api/spotify/current-track', async (req, res) => {
   try {
-    const token = await getUserAccessToken();
+    const authHeader = req.headers.authorization || '';
+    const headerToken = authHeader.startsWith('Bearer ')
+      ? authHeader.slice(7)
+      : null;
+    const token = headerToken || await getUserAccessToken();
     
     // Get your current playing track
     const currentResponse = await axios.get('https://api.spotify.com/v1/me/player/currently-playing', {
@@ -455,7 +459,11 @@ app.get('/api/spotify/current-track', async (req, res) => {
 // Get your recently played tracks
 app.get('/api/spotify/recent-tracks', async (req, res) => {
   try {
-    const token = await getUserAccessToken();
+    const authHeader = req.headers.authorization || '';
+    const headerToken = authHeader.startsWith('Bearer ')
+      ? authHeader.slice(7)
+      : null;
+    const token = headerToken || await getUserAccessToken();
     const limit = req.query.limit || 5;
     
     const response = await axios.get(`https://api.spotify.com/v1/me/player/recently-played?limit=${limit}`, {
@@ -491,6 +499,20 @@ app.get('/api/spotify/recent-tracks', async (req, res) => {
 // Check authentication status
 app.get('/api/spotify/auth-status', (req, res) => {
   const userId = 'default_user';
+  const authHeader = req.headers.authorization || '';
+  const headerToken = authHeader.startsWith('Bearer ')
+    ? authHeader.slice(7)
+    : null;
+
+  if (headerToken) {
+    return res.json({
+      authenticated: true,
+      expired: false,
+      hasRefreshToken: false,
+      message: 'Authenticated via bearer token'
+    });
+  }
+
   const userToken = userTokens.get(userId);
   
   if (userToken) {
@@ -569,18 +591,25 @@ app.post('/api/contact', async (req, res) => {
         timestamp: new Date().toISOString()
       });
     } else {
-      console.log('⚠️ Database not connected, storing locally instead');
-      // Fallback: store locally if DB is not connected
+      console.log('⚠️ Database not connected, storing in temporary file instead');
+      // Fallback for serverless: write to /tmp (ephemeral) so request succeeds
       const contactData = { name, email, reason, timestamp: new Date().toISOString() };
-      const contactFile = path.join(__dirname, 'contact_submissions.json');
-      
-      let submissions = [];
-      if (fs.existsSync(contactFile)) {
-        submissions = JSON.parse(fs.readFileSync(contactFile, 'utf8'));
+      const tmpDir = process.env.TMP_DIR || '/tmp';
+      const contactFile = path.join(tmpDir, 'contact_submissions.json');
+
+      try {
+        let submissions = [];
+        if (fs.existsSync(contactFile)) {
+          submissions = JSON.parse(fs.readFileSync(contactFile, 'utf8'));
+        }
+        submissions.push(contactData);
+        fs.writeFileSync(contactFile, JSON.stringify(submissions, null, 2));
+        console.log('📄 Contact submission saved to', contactFile);
+      } catch (fileErr) {
+        console.warn('⚠️ Could not write to tmp file:', fileErr.message);
+        // Continue without failing the request
       }
-      submissions.push(contactData);
-      fs.writeFileSync(contactFile, JSON.stringify(submissions, null, 2));
-      
+
       res.json({ 
         success: true, 
         message: 'Thank you for your message! I\'ll get back to you soon.',
