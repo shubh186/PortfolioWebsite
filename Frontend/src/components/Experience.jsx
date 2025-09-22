@@ -230,7 +230,7 @@ const Experience = () => {
     setSubmitMessage('');
     
     try {
-      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://shubhjoshi-portfolio.vercel.app';
+      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || '';
       const response = await fetch(`${BACKEND_URL}/api/contact`, {
         method: 'POST',
         headers: {

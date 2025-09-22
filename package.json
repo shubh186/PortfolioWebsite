@@ -10,7 +10,7 @@
     "install-all": "npm install && cd Frontend && npm install && cd ../Backend && npm install",
     "build": "cd Frontend && npm run build",
     "deploy-vercel": "node deploy-vercel.js",
-    "vercel-build": "npm install && cd Backend && npm install && cd ../Frontend && npm install && npm run build"
+    "vercel-build": "cd Frontend && npm install && npm run build"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

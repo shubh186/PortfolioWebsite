@@ -17,7 +17,8 @@ app.use(cors({
     'https://shubh186.github.io/PortfolioWebsite',
     'https://shubh186.github.io/portfolio-website',
     'https://shubhjoshi-portfolio.vercel.app',
-    process.env.FRONTEND_URL || 'https://portfolio-website-shubhs-projects-63d1a8d9.vercel.app'
+    'https://portfolio-website-6minck6zu-shubh-joshis-projects.vercel.app',
+    process.env.FRONTEND_URL || 'https://portfolio-website-6minck6zu-shubh-joshis-projects.vercel.app'
   ],
   credentials: true
 }));
@@ -27,7 +28,7 @@ app.use(express.static('public'));
 // Spotify API configuration
 const SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
 const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
-const SPOTIFY_REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI || `${process.env.FRONTEND_URL || 'https://portfolio-website-shubhs-projects-63d1a8d9.vercel.app'}/callback`;
+const SPOTIFY_REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI || `${process.env.FRONTEND_URL || 'https://portfolio-website-6minck6zu-shubh-joshis-projects.vercel.app'}/callback`;
 
 // Database configuration
 const dbConfig = {

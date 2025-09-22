@@ -29,7 +29,7 @@ const SpotifyCallback = () => {
 
         // Exchange the authorization code for access and refresh tokens
         try {
-          const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://shubhjoshi-portfolio.vercel.app';
+          const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || '';
     const response = await fetch(`${BACKEND_URL}/api/spotify/token`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
