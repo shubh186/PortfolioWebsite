@@ -241,15 +241,23 @@ function Main() {
                   </div>
                 </div>
                 <div className="project-links">
-                  <a 
-                    href={projectData.find(p => p.id === openCard)?.githubLink} 
-                    className="project-link live"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <FontAwesomeIcon icon={faTerminal} />
-                    View Code
-                  </a>
+                  {(() => {
+                    const link = projectData.find(p => p.id === openCard)?.githubLink;
+                    if (!link || link === '#') {
+                      return null;
+                    }
+                    return (
+                      <a 
+                        href={link}
+                        className="project-link live"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <FontAwesomeIcon icon={faTerminal} />
+                        View Code
+                      </a>
+                    );
+                  })()}
                 </div>
               </div>
             </div>
