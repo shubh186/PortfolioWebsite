@@ -31,30 +31,35 @@ const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
 const SPOTIFY_REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI || `${PUBLIC_BASE_URL}/callback`;
 
 // Database configuration
-const dbConfig = {
-  server: process.env.DB_HOST,
-  database: process.env.DB_NAME,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  port: parseInt(process.env.DB_PORT) || 1433,
-  options: {
-    encrypt: process.env.DB_SSL === 'true',
-    trustServerCertificate: true
-  }
-};
+const dbConfig = process.env.DB_CONNECTION_STRING
+  ? {
+      connectionString: process.env.DB_CONNECTION_STRING,
+      options: { encrypt: true, trustServerCertificate: true }
+    }
+  : {
+      server: process.env.DB_HOST,
+      database: process.env.DB_NAME,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      port: parseInt(process.env.DB_PORT) || 1433,
+      options: {
+        encrypt: process.env.DB_SSL === 'true',
+        trustServerCertificate: true
+      }
+    };
 
 // Database connection pool
 let pool;
 async function connectDB() {
   try {
     // Check if database configuration is complete
-    if (!process.env.DB_HOST || !process.env.DB_NAME || !process.env.DB_USER || !process.env.DB_PASSWORD) {
+    const hasConnStr = !!process.env.DB_CONNECTION_STRING;
+    const hasDiscrete = !!(process.env.DB_HOST && process.env.DB_NAME && process.env.DB_USER && process.env.DB_PASSWORD);
+    if (!hasConnStr && !hasDiscrete) {
       console.log('⚠️  Database configuration incomplete. Skipping database connection.');
       console.log('   To enable database features, set the following environment variables:');
-      console.log('   - DB_HOST (Azure SQL Server name)');
-      console.log('   - DB_NAME (Database name)');
-      console.log('   - DB_USER (Database username)');
-      console.log('   - DB_PASSWORD (Database password)');
+      console.log('   - DB_CONNECTION_STRING (preferred) or');
+      console.log('     DB_HOST, DB_NAME, DB_USER, DB_PASSWORD');
       return;
     }
     
@@ -569,7 +574,10 @@ app.post('/api/contact', async (req, res) => {
     // Log the contact form submission
     console.log('📧 Contact form submission:', { name, email, reason });
     
-    // Save to database
+    // Save to database (retry connect if needed)
+    if (!pool) {
+      await connectDB();
+    }
     if (pool) {
       const query = `
         INSERT INTO contact_submissions (name, email, reason, created_at)
