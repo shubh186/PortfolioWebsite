@@ -60,7 +60,10 @@ const SpotifyCard = () => {
   const checkAuthStatus = async () => {
     try {
       const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || '';
-      const response = await fetch(`${BACKEND_URL}/api/spotify/auth-status`);
+      const token = localStorage.getItem('spotify_access_token');
+      const response = await fetch(`${BACKEND_URL}/api/spotify/auth-status`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
+      });
       const data = await response.json();
       
       if (data.authenticated && !data.expired) {
@@ -108,7 +111,10 @@ const SpotifyCard = () => {
       
       // Call Vercel backend
       const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || '';
-      const response = await fetch(`${BACKEND_URL}/api/spotify/current-track`);
+      const token = localStorage.getItem('spotify_access_token');
+      const response = await fetch(`${BACKEND_URL}/api/spotify/current-track`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
+      });
       
       if (response.ok) {
         const data = await response.json();
