@@ -595,6 +595,8 @@ app.post('/api/contact', async (req, res) => {
       
       res.json({ 
         success: true, 
+        persisted: true,
+        storage: 'database',
         message: 'Thank you for your message! I\'ll get back to you soon.',
         timestamp: new Date().toISOString()
       });
@@ -620,6 +622,8 @@ app.post('/api/contact', async (req, res) => {
 
       res.json({ 
         success: true, 
+        persisted: false,
+        storage: 'tmp',
         message: 'Thank you for your message! I\'ll get back to you soon.',
         timestamp: new Date().toISOString()
       });
@@ -628,7 +632,11 @@ app.post('/api/contact', async (req, res) => {
   } catch (error) {
     console.error('❌ Contact form error:', error);
     res.status(500).json({ 
+      success: false,
+      persisted: false,
+      storage: 'none',
       error: 'Failed to send message',
+      details: error?.message,
       message: 'Please try again later'
     });
   }
