@@ -313,7 +313,7 @@ const IdCard = () => {
   const containerRef = useRef(null);
   const stringRef = useRef(null);
 
-  const downloadResume = () => {
+  const downloadResume = useCallback(() => {
     console.log('Attempting to download Development.pdf...');
     
     // Check if the file exists first
@@ -337,7 +337,7 @@ const IdCard = () => {
         console.error('Error checking development file:', error);
         alert('Error downloading development file. Please check the console for details.');
       });
-  };
+  }, []);
 
   const handleMouseDown = useCallback((e) => {
     setIsDragging(true);
