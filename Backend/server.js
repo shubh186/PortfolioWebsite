@@ -97,7 +97,7 @@ function saveTokensToFile() {
   }
 }
 
-// Generate Spotify authorization URL
+// Generate Spotify authorization URL (for owner setup only)
 app.get('/api/spotify/auth', (req, res) => {
   const scopes = [
     'user-read-currently-playing',
@@ -109,7 +109,24 @@ app.get('/api/spotify/auth', (req, res) => {
   
   const authUrl = `https://accounts.spotify.com/authorize?client_id=${SPOTIFY_CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(SPOTIFY_REDIRECT_URI)}&scope=${encodeURIComponent(scopes.join(' '))}&show_dialog=true`;
   
-  res.json({ authUrl });
+  res.json({ 
+    authUrl,
+    message: 'This endpoint is for owner authentication only. After setup, visitors will see your music data automatically.'
+  });
+});
+
+// Admin-only endpoint to check if owner setup is needed
+app.get('/api/admin/setup-needed', (req, res) => {
+  const userId = 'default_user';
+  const userToken = userTokens.get(userId);
+  
+  res.json({
+    setupNeeded: !userToken,
+    hasValidToken: userToken && Date.now() < userToken.expiresAt,
+    message: userToken 
+      ? 'Owner is authenticated and visitors can see music data'
+      : 'Owner needs to authenticate first. Visit /api/spotify/auth to get started.'
+  });
 });
 
 // Handle Spotify callback with authorization code
@@ -158,9 +175,10 @@ app.get('/callback', async (req, res) => {
     saveTokensToFile();
 
     console.log('Successfully stored tokens for user:', userId);
+    console.log('🎉 Owner authentication complete! Visitors can now see your music data.');
     
     // Redirect back to main page with success
-    res.redirect('/?auth=success');
+    res.redirect('/?auth=success&setup=complete');
 
   } catch (error) {
     console.error('Error processing callback:', error);
@@ -320,16 +338,13 @@ async function getUserAccessToken(userId = 'default_user') {
   return userToken.accessToken;
 }
 
-// Get your current playing track
+// Get owner's current playing track (public endpoint)
 app.get('/api/spotify/current-track', async (req, res) => {
   try {
-    const authHeader = req.headers.authorization || '';
-    const headerToken = authHeader.startsWith('Bearer ')
-      ? authHeader.slice(7)
-      : null;
-    const token = headerToken || await getUserAccessToken();
+    // Always use the stored owner token, ignore any visitor auth headers
+    const token = await getUserAccessToken();
     
-    // Get your current playing track
+    // Get owner's current playing track
     const currentResponse = await axios.get('https://api.spotify.com/v1/me/player/currently-playing', {
       headers: {
         'Authorization': `Bearer ${token}`
@@ -461,14 +476,11 @@ app.get('/api/spotify/current-track', async (req, res) => {
   }
 });
 
-// Get your recently played tracks
+// Get owner's recently played tracks (public endpoint)
 app.get('/api/spotify/recent-tracks', async (req, res) => {
   try {
-    const authHeader = req.headers.authorization || '';
-    const headerToken = authHeader.startsWith('Bearer ')
-      ? authHeader.slice(7)
-      : null;
-    const token = headerToken || await getUserAccessToken();
+    // Always use the stored owner token, ignore any visitor auth headers
+    const token = await getUserAccessToken();
     const limit = req.query.limit || 5;
     
     const response = await axios.get(`https://api.spotify.com/v1/me/player/recently-played?limit=${limit}`, {
@@ -501,23 +513,9 @@ app.get('/api/spotify/recent-tracks', async (req, res) => {
   }
 });
 
-// Check authentication status
+// Check owner authentication status (for admin use)
 app.get('/api/spotify/auth-status', (req, res) => {
   const userId = 'default_user';
-  const authHeader = req.headers.authorization || '';
-  const headerToken = authHeader.startsWith('Bearer ')
-    ? authHeader.slice(7)
-    : null;
-
-  if (headerToken) {
-    return res.json({
-      authenticated: true,
-      expired: false,
-      hasRefreshToken: false,
-      message: 'Authenticated via bearer token'
-    });
-  }
-
   const userToken = userTokens.get(userId);
   
   if (userToken) {
@@ -527,13 +525,15 @@ app.get('/api/spotify/auth-status', (req, res) => {
       expired: isExpired,
       expiresAt: new Date(userToken.expiresAt).toISOString(),
       hasRefreshToken: !!userToken.refreshToken,
-      message: isExpired ? 'Token expired, will refresh on next request' : 'Token valid'
+      message: isExpired ? 'Owner token expired, will refresh on next request' : 'Owner token valid',
+      isOwnerToken: true
     });
   } else {
     res.json({
       authenticated: false,
-      message: 'No authentication tokens found. Please authenticate first.',
-      authUrl: '/api/spotify/auth'
+      message: 'Owner not authenticated. Please authenticate first.',
+      authUrl: '/api/spotify/auth',
+      isOwnerToken: false
     });
   }
 });

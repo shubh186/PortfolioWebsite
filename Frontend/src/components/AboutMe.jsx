@@ -35,94 +35,43 @@ const SubText = () => {
   );
 };
 
-// Sub-component 4: Spotify Card with Authentication
+// Sub-component 4: Spotify Card - Shows Owner's Music Data
 const SpotifyCard = () => {
   const [currentTrack, setCurrentTrack] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Check authentication status on mount
+  // Fetch owner's music data on mount
   useEffect(() => {
-    checkAuthStatus();
+    fetchSpotifyData();
+    // Refresh every 30 seconds to keep it current
+    const interval = setInterval(fetchSpotifyData, 30000);
+    return () => clearInterval(interval);
   }, []);
 
-  // Fetch data when authenticated
-  useEffect(() => {
-    if (isAuthenticated) {
-      fetchSpotifyData();
-      // Refresh every 30 seconds to keep it current
-      const interval = setInterval(fetchSpotifyData, 30000);
-      return () => clearInterval(interval);
-    }
-  }, [isAuthenticated]);
-
-  const checkAuthStatus = async () => {
-    try {
-      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || '';
-      const token = localStorage.getItem('spotify_access_token');
-      const response = await fetch(`${BACKEND_URL}/api/spotify/auth-status`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {}
-      });
-      const data = await response.json();
-      
-      if (data.authenticated && !data.expired) {
-        setIsAuthenticated(true);
-      } else {
-        setIsAuthenticated(false);
-        setError('Spotify not connected');
-      }
-    } catch (err) {
-      console.error('Error checking auth status:', err);
-      setError('Unable to check Spotify connection');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleSpotifyAuth = async () => {
-    try {
-      console.log('🎵 Spotify card clicked! Starting authentication...');
-      
-      // Call Vercel backend
-      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || '';
-      const response = await fetch(`${BACKEND_URL}/api/spotify/auth`);
-      console.log('📡 Auth response status:', response.status);
-      
-      const data = await response.json();
-      console.log('📋 Auth response data:', data);
-      
-      if (data.authUrl) {
-        console.log('🔗 Redirecting to Spotify auth URL:', data.authUrl);
-        // Open in same window - the redirect will bring them back
-        window.location.href = data.authUrl;
-      } else {
-        console.log('❌ No auth URL in response');
-      }
-    } catch (err) {
-      console.error('❌ Error getting auth URL:', err);
-      setError('Unable to connect to Spotify');
-    }
-  };
 
   const fetchSpotifyData = async () => {
     try {
       setError(null);
+      setIsLoading(true);
       
-      // Call Vercel backend
-      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || '';
-      const token = localStorage.getItem('spotify_access_token');
-      const response = await fetch(`${BACKEND_URL}/api/spotify/current-track`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {}
-      });
+      // Call backend to get owner's music data
+      const base = process.env.NODE_ENV === 'development'
+        ? ''
+        : (process.env.REACT_APP_BACKEND_URL || '');
+      const response = await fetch(`${base}/api/spotify/current-track`);
       
       if (response.ok) {
         const data = await response.json();
         setCurrentTrack(data);
       } else if (response.status === 401) {
-        // Not authenticated
-        setIsAuthenticated(false);
-        setError('Spotify authentication expired');
+        // Owner needs to authenticate - show helpful message
+        setError('Owner authentication needed');
+        setCurrentTrack({
+          name: 'Music setup required',
+          artist: 'Owner needs to authenticate',
+          isPlaying: false
+        });
       } else {
         setCurrentTrack({
           name: 'Music not available',
@@ -138,35 +87,24 @@ const SpotifyCard = () => {
         artist: 'Check back later',
         isPlaying: false
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // Show authentication button if not authenticated
-  if (!isAuthenticated && !isLoading) {
-    console.log('🎵 Rendering Spotify auth card. isAuthenticated:', isAuthenticated, 'isLoading:', isLoading);
+  // Show loading state
+  if (isLoading) {
     return (
-      <div 
-        className="spotify-card" 
-        onClick={() => {
-          alert('Card clicked! Starting Spotify auth...');
-          console.log('🖱️ Card clicked! Calling handleSpotifyAuth...');
-          handleSpotifyAuth();
-        }} 
-        style={{ cursor: 'pointer', border: '2px solid red' }}
-        title="Click to connect Spotify"
-      >
+      <div className="spotify-card">
         <div className="album-art">
           <div className="album-placeholder">
             <div className="music-note">🎵</div>
           </div>
-          <div className="playing-indicator">
-            🔗
-          </div>
         </div>
         <div className="track-info">
-          <div className="last-played">Connect Spotify</div>
-          <div className="track-title">Click to authenticate</div>
-          <div className="artist-name">Show your music here</div>
+          <div className="last-played">Loading...</div>
+          <div className="track-title">Fetching music data</div>
+          <div className="artist-name">Please wait</div>
         </div>
         <div className="spotify-logo">
           <div className="spotify-icon">
@@ -215,9 +153,9 @@ const SpotifyCard = () => {
           <div className="spotify-line"></div>
         </div>
       </div>
-      {error && !isAuthenticated && (
-        <div className="spotify-error-overlay" onClick={handleSpotifyAuth} style={{ cursor: 'pointer' }}>
-          <div className="error-text">Click to reconnect</div>
+      {error && (
+        <div className="spotify-error-overlay">
+          <div className="error-text">{error}</div>
         </div>
       )}
     </div>
@@ -226,32 +164,19 @@ const SpotifyCard = () => {
 
 // Sub-component 5: Countries Visited Card
 const CountriesVisitedCard = () => {
-  const [showCountries, setShowCountries] = useState(false);
-  
+  // Always-visible list; no hover state needed
   const countries = [
-    { name: 'Canada', flag: '🇨🇦' },
-    { name: 'USA', flag: '🇺🇸' },
-    { name: 'UK', flag: '🇬🇧' },
-    { name: 'Dubai', flag: '🇦🇪' },
-    { name: 'India', flag: '🇮🇳' },
-    { name: 'Vietnam', flag: '🇻🇳' },
-    { name: 'Mauritius', flag: '🇲🇺' }
+    { code: 'ca', name: 'Canada' },
+    { code: 'us', name: 'USA' },
+    { code: 'gb', name: 'UK' },
+    { code: 'ae', name: 'UAE' },
+    { code: 'in', name: 'India' },
+    { code: 'vn', name: 'Vietnam' },
+    { code: 'mu', name: 'Mauritius' }
   ];
 
-  const handleMouseEnter = () => {
-    setShowCountries(true);
-  };
-
-  const handleMouseLeave = () => {
-    setShowCountries(false);
-  };
-
   return (
-    <div 
-      className="countries-card" 
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    >
+    <div className="countries-card">
       <div className="countries-content">
         <div className="countries-text">
           <div className="countries-title">Places I've been</div>
@@ -260,16 +185,22 @@ const CountriesVisitedCard = () => {
           <div className="location-icon">📍</div>
         </div>
       </div>
-      {showCountries && (
-        <div className="countries-list">
-          {countries.map((country, index) => (
-            <div key={index} className="country-item">
-              <span className="country-flag">{country.flag}</span>
-              <span className="country-name">{country.name}</span>
-            </div>
-          ))}
-        </div>
-      )}
+      <div className="countries-list">
+        {countries.map((country, index) => (
+          <div key={index} className="country-item">
+            <span className="country-flag">
+              <img 
+                src={`https://flagcdn.com/24x18/${country.code}.png`} 
+                alt={`${country.name} flag`} 
+                width="24" 
+                height="18" 
+                loading="lazy"
+              />
+            </span>
+            <span className="country-name">{country.name}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
@@ -465,13 +396,10 @@ const IdCard = () => {
               <span className="label">Email:</span>
               <span className="value">shubh.joshi@gmail.com</span>
             </div>
-            <div className="detail-row">
-              <span className="label">Phone:</span>
-              <span className="value">+1 (555) 123-4567</span>
-            </div>
+            
             <div className="detail-row">
               <span className="label">Location:</span>
-              <span className="value">San Francisco, CA</span>
+              <span className="value">Toronto, ON</span>
             </div>
             <div className="detail-row">
               <span className="label">Experience:</span>
@@ -508,7 +436,7 @@ const AboutMe = () => {
           <IdCard />
         </div>
       </div>
-      <FloatingScrollIndicator />
+      {/* FloatingScrollIndicator removed per request */}
     </div>
   );
 };
