@@ -50,6 +50,33 @@ const SpotifyCard = () => {
   }, []);
 
 
+  const handleSpotifyAuth = async () => {
+    try {
+      console.log('🎵 Spotify card clicked! Starting authentication...');
+      
+      // Call backend to get auth URL
+      const base = process.env.NODE_ENV === 'development'
+        ? ''
+        : (process.env.REACT_APP_BACKEND_URL || '');
+      const response = await fetch(`${base}/api/spotify/auth`);
+      console.log('📡 Auth response status:', response.status);
+      
+      const data = await response.json();
+      console.log('📋 Auth response data:', data);
+      
+      if (data.authUrl) {
+        console.log('🔗 Redirecting to Spotify auth URL:', data.authUrl);
+        // Open in same window - the redirect will bring them back
+        window.location.href = data.authUrl;
+      } else {
+        console.log('❌ No auth URL in response');
+      }
+    } catch (err) {
+      console.error('❌ Error getting auth URL:', err);
+      setError('Unable to connect to Spotify');
+    }
+  };
+
   const fetchSpotifyData = async () => {
     try {
       setError(null);
@@ -66,10 +93,10 @@ const SpotifyCard = () => {
         setCurrentTrack(data);
       } else if (response.status === 401) {
         // Owner needs to authenticate - show helpful message
-        setError('Owner authentication needed');
+        setError('Click to authenticate Spotify');
         setCurrentTrack({
           name: 'Music setup required',
-          artist: 'Owner needs to authenticate',
+          artist: 'Click to authenticate',
           isPlaying: false
         });
       } else {
@@ -81,10 +108,10 @@ const SpotifyCard = () => {
       }
     } catch (err) {
       console.error('Error fetching Spotify data:', err);
-      setError('Unable to load music data');
+      setError('Click to connect Spotify');
       setCurrentTrack({
         name: 'Music not available',
-        artist: 'Check back later',
+        artist: 'Click to connect',
         isPlaying: false
       });
     } finally {
@@ -118,7 +145,12 @@ const SpotifyCard = () => {
   }
 
   return (
-    <div className="spotify-card">
+    <div 
+      className="spotify-card" 
+      onClick={error ? handleSpotifyAuth : undefined}
+      style={{ cursor: error ? 'pointer' : 'default' }}
+      title={error ? 'Click to authenticate Spotify' : ''}
+    >
       <div className="album-art">
         {currentTrack?.albumArt ? (
           <img 

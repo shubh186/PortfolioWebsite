@@ -55,6 +55,14 @@ async function connectDB() {
     // Check if database configuration is complete
     const hasConnStr = !!process.env.DB_CONNECTION_STRING;
     const hasDiscrete = !!(process.env.DB_HOST && process.env.DB_NAME && process.env.DB_USER && process.env.DB_PASSWORD);
+    
+    console.log('🔍 Database config check:');
+    console.log('   DB_CONNECTION_STRING:', hasConnStr ? 'Set' : 'Not set');
+    console.log('   DB_HOST:', process.env.DB_HOST ? 'Set' : 'Not set');
+    console.log('   DB_NAME:', process.env.DB_NAME ? 'Set' : 'Not set');
+    console.log('   DB_USER:', process.env.DB_USER ? 'Set' : 'Not set');
+    console.log('   DB_PASSWORD:', process.env.DB_PASSWORD ? 'Set' : 'Not set');
+    
     if (!hasConnStr && !hasDiscrete) {
       console.log('⚠️  Database configuration incomplete. Skipping database connection.');
       console.log('   To enable database features, set the following environment variables:');
@@ -63,10 +71,12 @@ async function connectDB() {
       return;
     }
     
+    console.log('🔄 Attempting database connection...');
     pool = await sql.connect(dbConfig);
     console.log('✅ Connected to Azure SQL Database');
   } catch (err) {
     console.error('❌ Database connection failed:', err);
+    console.error('❌ Config being used:', JSON.stringify(dbConfig, null, 2));
   }
 }
 
