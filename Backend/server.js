@@ -86,12 +86,12 @@ let userTokens = new Map();
 // Load tokens from database on startup
 async function loadTokensFromDatabase() {
   try {
-    if (!dbPool) {
+    if (!pool) {
       console.log('📂 No database connection, starting with empty tokens');
       return;
     }
 
-    const request = dbPool.request();
+    const request = pool.request();
     const result = await request.query('SELECT user_id, access_token, refresh_token, expires_at FROM spotify_tokens');
     
     userTokens.clear();
@@ -113,14 +113,14 @@ async function loadTokensFromDatabase() {
 // Save tokens to database
 async function saveTokensToDatabase(userId, accessToken, refreshToken, expiresIn) {
   try {
-    if (!dbPool) {
+    if (!pool) {
       console.log('⚠️ No database connection, tokens not persisted');
       return;
     }
 
     const expiresAt = new Date(Date.now() + (expiresIn * 1000));
     
-    const request = dbPool.request();
+    const request = pool.request();
     request.input('userId', sql.NVarChar, userId);
     request.input('accessToken', sql.NVarChar, accessToken);
     request.input('refreshToken', sql.NVarChar, refreshToken);
@@ -316,7 +316,7 @@ app.post('/api/spotify/store-token', async (req, res) => {
       expiresAt: Date.now() + ((expiresIn || 3600) * 1000)
     });
     
-    await saveTokensToDatabase(userId, access_token, refresh_token, expires_in);
+    await saveTokensToDatabase(userId, accessToken, refreshToken || null, expiresIn || 3600);
     
     console.log('📥 Token stored from frontend for user:', userId);
     res.json({ success: true, message: 'Token stored successfully' });
@@ -596,15 +596,15 @@ app.get('/api/health', (req, res) => {
     timestamp: new Date().toISOString(),
     database: {
       connected: !!pool,
-      host: process.env.DB_HOST,
-      name: process.env.DB_NAME
+      mode: process.env.DB_CONNECTION_STRING ? 'connectionString' : 'discrete',
+      host: process.env.DB_HOST || undefined,
+      name: process.env.DB_NAME || undefined
     },
     spotify: {
       clientId: SPOTIFY_CLIENT_ID ? 'Configured' : 'Missing',
       clientSecret: SPOTIFY_CLIENT_SECRET ? 'Configured' : 'Missing',
       redirectUri: SPOTIFY_REDIRECT_URI,
-      authenticatedUsers: userTokens.size,
-      tokenFileExists: fs.existsSync(TOKENS_FILE)
+      authenticatedUsers: userTokens.size
     }
   });
 });
