@@ -205,40 +205,7 @@ const CountriesVisitedCard = () => {
   );
 };
 
-// Sub-component 6: Floating Scroll Indicator
-const FloatingScrollIndicator = () => {
-  const [isAtBottom, setIsAtBottom] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      const windowHeight = window.innerHeight;
-      const documentHeight = document.documentElement.scrollHeight;
-      
-      // Check if we're near the bottom (within 100px)
-      const bottomThreshold = documentHeight - windowHeight - 100;
-      setIsAtBottom(scrollTop > bottomThreshold);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  return (
-    <div className="floating-scroll-indicator">
-      <div className="mouse-icon">
-        <div className="mouse-body"></div>
-        <div className="mouse-wheel"></div>
-      </div>
-      <div className="scroll-arrows">
-        <div className={`scroll-arrow ${isAtBottom ? 'scroll-arrow-up' : ''}`}></div>
-        <div className={`scroll-arrow ${isAtBottom ? 'scroll-arrow-up' : ''}`}></div>
-      </div>
-    </div>
-  );
-};
-
-// Sub-component 7: ID Card
+// Sub-component 6: ID Card
 const IdCard = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 });
