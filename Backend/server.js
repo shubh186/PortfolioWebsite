@@ -80,30 +80,71 @@ async function connectDB() {
   }
 }
 
-// Token storage file path
-const TOKENS_FILE = path.join(__dirname, 'user_tokens.json');
-
-// Load tokens from file on startup
+// Token storage in memory (loaded from database)
 let userTokens = new Map();
-try {
-  if (fs.existsSync(TOKENS_FILE)) {
-    const tokensData = JSON.parse(fs.readFileSync(TOKENS_FILE, 'utf8'));
-    userTokens = new Map(Object.entries(tokensData));
-    console.log('📂 Loaded tokens for', userTokens.size, 'users');
+
+// Load tokens from database on startup
+async function loadTokensFromDatabase() {
+  try {
+    if (!dbPool) {
+      console.log('📂 No database connection, starting with empty tokens');
+      return;
+    }
+
+    const request = dbPool.request();
+    const result = await request.query('SELECT user_id, access_token, refresh_token, expires_at FROM spotify_tokens');
+    
+    userTokens.clear();
+    result.recordset.forEach(row => {
+      userTokens.set(row.user_id, {
+        accessToken: row.access_token,
+        refreshToken: row.refresh_token,
+        expiresAt: new Date(row.expires_at).getTime()
+      });
+    });
+    
+    console.log('📂 Loaded tokens from database:', userTokens.size, 'users');
+  } catch (error) {
+    console.error('❌ Error loading tokens from database:', error.message);
+    userTokens = new Map();
   }
-} catch (error) {
-  console.error('Error loading tokens from file:', error);
-  userTokens = new Map();
 }
 
-// Save tokens to file
-function saveTokensToFile() {
+// Save tokens to database
+async function saveTokensToDatabase(userId, accessToken, refreshToken, expiresIn) {
   try {
-    const tokensObj = Object.fromEntries(userTokens);
-    fs.writeFileSync(TOKENS_FILE, JSON.stringify(tokensObj, null, 2));
-    console.log('💾 Tokens saved to file');
+    if (!dbPool) {
+      console.log('⚠️ No database connection, tokens not persisted');
+      return;
+    }
+
+    const expiresAt = new Date(Date.now() + (expiresIn * 1000));
+    
+    const request = dbPool.request();
+    request.input('userId', sql.NVarChar, userId);
+    request.input('accessToken', sql.NVarChar, accessToken);
+    request.input('refreshToken', sql.NVarChar, refreshToken);
+    request.input('expiresAt', sql.DateTime2, expiresAt);
+    
+    // Use MERGE to insert or update
+    await request.query(`
+      MERGE spotify_tokens AS target
+      USING (SELECT @userId as user_id, @accessToken as access_token, @refreshToken as refresh_token, @expiresAt as expires_at) AS source
+      ON target.user_id = source.user_id
+      WHEN MATCHED THEN
+        UPDATE SET 
+          access_token = source.access_token,
+          refresh_token = source.refresh_token,
+          expires_at = source.expires_at,
+          updated_at = GETDATE()
+      WHEN NOT MATCHED THEN
+        INSERT (user_id, access_token, refresh_token, expires_at)
+        VALUES (source.user_id, source.access_token, source.refresh_token, source.expires_at);
+    `);
+    
+    console.log('💾 Tokens saved to database for user:', userId);
   } catch (error) {
-    console.error('Error saving tokens to file:', error);
+    console.error('❌ Error saving tokens to database:', error.message);
   }
 }
 
@@ -181,8 +222,8 @@ app.get('/callback', async (req, res) => {
       expiresAt: Date.now() + (expires_in * 1000)
     });
 
-    // Save tokens to file
-    saveTokensToFile();
+    // Save tokens to database
+    await saveTokensToDatabase(userId, access_token, refresh_token, expires_in);
 
     console.log('Successfully stored tokens for user:', userId);
     console.log('🎉 Owner authentication complete! Visitors can now see your music data.');
@@ -236,8 +277,8 @@ app.post('/api/spotify/token', async (req, res) => {
       expiresAt: Date.now() + (expires_in * 1000)
     });
 
-    // Save tokens to file
-    saveTokensToFile();
+    // Save tokens to database
+    await saveTokensToDatabase(userId, access_token, refresh_token, expires_in);
 
     console.log('💾 Tokens stored in memory and file for user:', userId);
     console.log('Current userTokens size:', userTokens.size);
@@ -260,7 +301,7 @@ app.post('/api/spotify/token', async (req, res) => {
 });
 
 // Accept tokens from frontend (for when tokens are stored in localStorage)
-app.post('/api/spotify/store-token', (req, res) => {
+app.post('/api/spotify/store-token', async (req, res) => {
   try {
     const { accessToken, refreshToken, expiresIn } = req.body;
     
@@ -275,7 +316,7 @@ app.post('/api/spotify/store-token', (req, res) => {
       expiresAt: Date.now() + ((expiresIn || 3600) * 1000)
     });
     
-    saveTokensToFile();
+    await saveTokensToDatabase(userId, access_token, refresh_token, expires_in);
     
     console.log('📥 Token stored from frontend for user:', userId);
     res.json({ success: true, message: 'Token stored successfully' });
@@ -318,7 +359,7 @@ async function refreshUserToken(userId) {
       expiresAt: Date.now() + (expires_in * 1000)
     });
 
-    saveTokensToFile();
+    await saveTokensToDatabase(userId, access_token, refresh_token, expires_in);
     console.log('✅ Token refreshed successfully');
     
     return access_token;
@@ -668,19 +709,23 @@ app.use('*', (req, res) => {
   res.status(404).json({ error: 'Endpoint not found' });
 });
 
-// Graceful shutdown - save tokens before exiting
+// Graceful shutdown
 process.on('SIGINT', () => {
-  console.log('💾 Saving tokens before shutdown...');
-  saveTokensToFile();
+  console.log('🛑 Shutting down gracefully...');
   process.exit(0);
 });
 
 process.on('SIGTERM', () => {
-  console.log('💾 Saving tokens before shutdown...');
-  saveTokensToFile();
+  console.log('🛑 Shutting down gracefully...');
   process.exit(0);
 });
 
-connectDB(); // start DB connection on cold start
+// Initialize database and load tokens
+async function initializeApp() {
+  await connectDB();
+  await loadTokensFromDatabase();
+}
+
+initializeApp(); // start DB connection and load tokens on cold start
 
 module.exports = app; // let Vercel handle serving
