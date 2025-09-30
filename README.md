@@ -1,140 +1,110 @@
 # Portfolio Website
 
-A modern portfolio website built with React frontend and Node.js backend, featuring Spotify integration and contact form functionality.
+My personal portfolio site showing projects, experience, and what I'm currently listening to on Spotify. Built with React and Node.js, deployed on Vercel.
 
-## 🏗️ Project Structure
+## Project Structure
 
 ```
 PortfolioWebsite/
-├── Frontend/          # React application
-│   ├── src/          # React source code
-│   ├── public/       # Static assets
-│   ├── build/        # Production build
-│   └── package.json  # Frontend dependencies
-├── Backend/           # Node.js server
-│   ├── server.js     # Express server
-│   ├── vercel.json   # Vercel deployment config
-│   └── package.json  # Backend dependencies
-└── package.json      # Root project configuration
+├── api/
+│   └── index.js          # Vercel serverless entry point
+├── Backend/
+│   ├── server.js         # Express API server
+│   ├── azure-setup.sql   # Database schema for Azure SQL
+│   ├── package.json
+├── Frontend/
+│   ├── src/              # React source code
+│   ├── public/           # Static assets (images, resume)
+│   └── package.json
+├── vercel.json           # Vercel deployment config
+└── package.json          # Root scripts
 ```
 
-## 🚀 Features
+## Features
 
-- **React Frontend**: Modern, responsive portfolio website
-- **Spotify Integration**: Display current playing track and recently played music
-- **Contact Form**: Store submissions in Azure SQL Database
-- **3D Graphics**: Three.js integration for visual effects
-- **Responsive Design**: Mobile-first approach with Tailwind CSS
+- **Spotify Widget**: Shows what I'm currently playing or last played
+- **Contact Form**: Saves submissions to Azure SQL database
+- **Resume Download**: Pull-to-download ID card
+- **Projects Showcase**: Honeycomb grid layout
+- **Responsive Design**: Works on mobile and desktop
 
-## 🛠️ Tech Stack
+## Tech Stack
 
-### Frontend
-- React 18
-- Three.js (3D graphics)
-- React Router (navigation)
-- Tailwind CSS (styling)
-- FontAwesome (icons)
-- Spotify Web API
+**Frontend**: React, Three.js, React Router, FontAwesome  
+**Backend**: Node.js, Express, Azure SQL (mssql), Spotify Web API  
+**Hosting**: Vercel (both frontend and backend)
 
-### Backend
-- Node.js
-- Express.js
-- Azure SQL Database
-- Spotify API integration
-- CORS support
+## Local Development
 
-## 📦 Installation
-
-1. **Clone the repository**
+1. **Clone the repo**
    ```bash
    git clone https://github.com/shubh186/PortfolioWebsite.git
    cd PortfolioWebsite
    ```
 
-2. **Install all dependencies**
+2. **Install dependencies**
    ```bash
    npm run install-all
    ```
 
-## 🏃‍♂️ Development
+3. **Set up environment variables**
+   
+   Copy `Backend/env.example` to `Backend/.env` and fill in:
+   - Spotify credentials (client ID, secret, redirect URI)
+   - Azure SQL connection details (host, database, user, password)
+   - Frontend URL for CORS
 
-### Run both frontend and backend
-```bash
-npm run dev
-```
+4. **Run locally**
+   ```bash
+   npm run dev
+   ```
+   - Frontend: http://localhost:3000
+   - Backend: http://localhost:5000
 
-### Run frontend only
-```bash
-npm run frontend
-```
+## Deployment
 
-### Run backend only
-```bash
-npm run backend
-```
+Pushes to `main` branch automatically deploy to Vercel. Make sure environment variables are set in Vercel dashboard:
 
-## 🌐 Production Deployment
+**Required**:
+- `SPOTIFY_CLIENT_ID`
+- `SPOTIFY_CLIENT_SECRET`
+- `SPOTIFY_REDIRECT_URI` (e.g., https://s-joshi.com/callback)
+- `FRONTEND_URL` (e.g., https://s-joshi.com)
+- `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_PORT`, `DB_SSL`
 
-### Frontend (GitHub Pages)
-```bash
-npm run deploy
-```
+## Spotify Setup
 
-### Backend (Vercel)
-The backend is configured for Vercel deployment with environment variables:
-- `DB_HOST`: Azure SQL Server host
-- `DB_NAME`: Database name
-- `DB_USER`: Database username
-- `DB_PASSWORD`: Database password
-- `SPOTIFY_CLIENT_ID`: Spotify API client ID
-- `SPOTIFY_CLIENT_SECRET`: Spotify API client secret
+1. Create an app at [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
+2. Add redirect URI: `https://your-domain.com/callback`
+3. Copy client ID and secret to environment variables
+4. Visit `/api/spotify/auth` once to authenticate as the owner
+5. Tokens are stored in the database and auto-refresh
 
-## 📁 Environment Variables
+## API Endpoints
 
-Create a `.env` file in the Backend directory for local development:
+- `GET /api/health` - Server status and DB connection
+- `GET /api/health/db` - Test database connection
+- `GET /api/spotify/auth` - Get Spotify auth URL (owner only)
+- `GET /api/spotify/auth-status` - Check if owner is authenticated
+- `GET /api/spotify/current-track` - Current or last played track (public)
+- `POST /api/contact` - Submit contact form
 
-```env
-DB_HOST=your_azure_sql_server.database.windows.net
-DB_NAME=your_database_name
-DB_USER=your_username
-DB_PASSWORD=your_password
-DB_PORT=1433
-DB_SSL=true
-SPOTIFY_CLIENT_ID=your_spotify_client_id
-SPOTIFY_CLIENT_SECRET=your_spotify_client_secret
-SPOTIFY_REDIRECT_URI=http://localhost:5000/callback
-```
+## Database Setup
 
-## 🔧 Available Scripts
+Run `Backend/azure-setup.sql` on your Azure SQL database to create:
+- `contact_submissions` table (contact form data)
+- `spotify_tokens` table (owner's Spotify credentials)
 
-- `npm run dev`: Start both frontend and backend in development mode
-- `npm run frontend`: Start only the React frontend
-- `npm run backend`: Start only the Node.js backend
-- `npm run build`: Build the frontend for production
-- `npm run deploy`: Deploy to GitHub Pages
-- `npm run install-all`: Install dependencies for all packages
+Azure SQL firewall must allow Vercel IPs to connect.
 
-## 📞 API Endpoints
+## Scripts
 
-- `GET /api/health`: Health check
-- `GET /api/spotify/auth`: Spotify authentication URL
-- `GET /api/spotify/current-track`: Current playing track
-- `GET /api/spotify/auth-status`: Authentication status
-- `POST /api/contact`: Contact form submission
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
-
-## 📄 License
-
-MIT License - see LICENSE file for details
+- `npm run dev` - Run both frontend and backend
+- `npm run frontend` - Frontend only
+- `npm run backend` - Backend only
+- `npm run build` - Build frontend for production
+- `npm run install-all` - Install all dependencies
 
 ---
 
-**Last Updated**: August 30, 2025 - Project restructured with separate Frontend and Backend folders for better organization and deployment.
-
-Test
+Built by Shubh Joshi | [s-joshi.com](https://s-joshi.com)
