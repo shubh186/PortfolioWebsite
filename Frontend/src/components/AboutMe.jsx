@@ -30,7 +30,7 @@ const SubText = () => {
     <div className="about-me">
       Though I could fit neatly into the modern labels of computer scientist or developer, that’s not really me. I specialize in creating experiences and solutions that bridge the gap between traditional software roles and the bigger picture.
       <br /><br />
-      I’m a plug-and-play builder — stepping into whatever role a project needs, from development to product — helping innovative ideas come to life and shaping them into meaningful experiences. Pull the ID card to see my resume!
+      I’m a plug-and-play builder — stepping into whatever role a project needs, from development to product — helping innovative ideas come to life and shaping them into meaningful experiences. Pull the ID card to download my resume!
     </div>
   );
 };
