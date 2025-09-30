@@ -593,6 +593,26 @@ app.get('/api/spotify/recent-tracks', async (req, res) => {
   }
 });
 
+// Manually reload tokens from database (for debugging)
+app.get('/api/spotify/reload-tokens', async (req, res) => {
+  try {
+    console.log('🔄 Manual token reload requested');
+    await loadTokensFromDatabase();
+    res.json({ 
+      success: true, 
+      tokensLoaded: userTokens.size,
+      users: Array.from(userTokens.keys()),
+      message: `Loaded ${userTokens.size} user token(s) from database`
+    });
+  } catch (error) {
+    console.error('❌ Manual reload failed:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    });
+  }
+});
+
 // Check owner authentication status (for admin use)
 app.get('/api/spotify/auth-status', (req, res) => {
   const userId = 'default_user';
@@ -770,7 +790,15 @@ process.on('SIGTERM', () => {
 // Initialize database and load tokens
 async function initializeApp() {
   await connectDB();
-  await loadTokensFromDatabase();
+  
+  // Give DB a moment to be fully ready, then load tokens
+  if (pool) {
+    console.log('⏳ Waiting 1 second for DB pool to stabilize...');
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    await loadTokensFromDatabase();
+  } else {
+    console.warn('⚠️ No database pool available, skipping token load');
+  }
 }
 
 initializeApp(); // start DB connection and load tokens on cold start
