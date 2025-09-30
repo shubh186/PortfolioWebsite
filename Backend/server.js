@@ -196,8 +196,8 @@ app.get('/api/admin/setup-needed', (req, res) => {
   });
 });
 
-// Handle Spotify callback with authorization code
-app.get('/callback', async (req, res) => {
+// Handle Spotify callback with authorization code (supports both /callback and /api/spotify/callback-direct)
+const handleSpotifyCallback = async (req, res) => {
   try {
     const { code, error } = req.query;
     
@@ -251,7 +251,11 @@ app.get('/callback', async (req, res) => {
     console.error('Error processing callback:', error);
     res.redirect('/?error=token_exchange_failed');
   }
-});
+};
+
+// Mount callback handler on both routes
+app.get('/callback', handleSpotifyCallback);
+app.get('/api/spotify/callback-direct', handleSpotifyCallback);
 
 // Exchange authorization code for access token (Alternative API endpoint)
 app.post('/api/spotify/token', async (req, res) => {
