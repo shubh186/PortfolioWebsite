@@ -97,11 +97,15 @@ async function loadTokensFromDatabase() {
       return;
     }
 
+    console.log('🔄 Loading tokens from database...');
     const request = pool.request();
     const result = await request.query('SELECT user_id, access_token, refresh_token, expires_at FROM spotify_tokens');
     
+    console.log('📊 Query returned', result.recordset?.length || 0, 'rows');
+    
     userTokens.clear();
     result.recordset.forEach(row => {
+      console.log('✅ Loading token for user:', row.user_id);
       userTokens.set(row.user_id, {
         accessToken: row.access_token,
         refreshToken: row.refresh_token,
@@ -110,8 +114,10 @@ async function loadTokensFromDatabase() {
     });
     
     console.log('📂 Loaded tokens from database:', userTokens.size, 'users');
+    console.log('💾 Users in memory:', Array.from(userTokens.keys()));
   } catch (error) {
     console.error('❌ Error loading tokens from database:', error.message);
+    console.error('❌ Stack:', error.stack);
     userTokens = new Map();
   }
 }
