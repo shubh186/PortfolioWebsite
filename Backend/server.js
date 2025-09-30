@@ -12,6 +12,9 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 const allowedOrigins = [
   'http://localhost:3000',
+  'https://localhost:3000',
+  'https://s-joshi.com',
+  'https://www.s-joshi.com',
   process.env.FRONTEND_URL || null,
   process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null,
   /\.vercel\.app$/
@@ -50,6 +53,7 @@ const dbConfig = process.env.DB_CONNECTION_STRING
 
 // Database connection pool
 let pool;
+let lastDbError = null;
 async function connectDB() {
   try {
     // Check if database configuration is complete
@@ -73,8 +77,10 @@ async function connectDB() {
     
     console.log('🔄 Attempting database connection...');
     pool = await sql.connect(dbConfig);
+    lastDbError = null;
     console.log('✅ Connected to Azure SQL Database');
   } catch (err) {
+    lastDbError = err?.message || String(err);
     console.error('❌ Database connection failed:', err);
     console.error('❌ Config being used:', JSON.stringify(dbConfig, null, 2));
   }
@@ -114,7 +120,11 @@ async function loadTokensFromDatabase() {
 async function saveTokensToDatabase(userId, accessToken, refreshToken, expiresIn) {
   try {
     if (!pool) {
-      console.log('⚠️ No database connection, tokens not persisted');
+      console.log('ℹ️ No database connection, attempting to connect...');
+      await connectDB();
+    }
+    if (!pool) {
+      console.log('⚠️ Database still not connected; tokens not persisted');
       return;
     }
 
@@ -129,12 +139,18 @@ async function saveTokensToDatabase(userId, accessToken, refreshToken, expiresIn
     // Use MERGE to insert or update
     await request.query(`
       MERGE spotify_tokens AS target
-      USING (SELECT @userId as user_id, @accessToken as access_token, @refreshToken as refresh_token, @expiresAt as expires_at) AS source
+      USING (
+        SELECT 
+          @userId       AS user_id, 
+          @accessToken  AS access_token, 
+          @refreshToken AS refresh_token, 
+          @expiresAt    AS expires_at
+      ) AS source
       ON target.user_id = source.user_id
       WHEN MATCHED THEN
         UPDATE SET 
           access_token = source.access_token,
-          refresh_token = source.refresh_token,
+          refresh_token = COALESCE(source.refresh_token, target.refresh_token),
           expires_at = source.expires_at,
           updated_at = GETDATE()
       WHEN NOT MATCHED THEN
@@ -158,7 +174,7 @@ app.get('/api/spotify/auth', (req, res) => {
     'user-read-email'
   ];
   
-  const authUrl = `https://accounts.spotify.com/authorize?client_id=${SPOTIFY_CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(SPOTIFY_REDIRECT_URI)}&scope=${encodeURIComponent(scopes.join(' '))}&show_dialog=true`;
+  const authUrl = `https://accounts.spotify.com/authorize?client_id=${SPOTIFY_CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(SPOTIFY_REDIRECT_URI)}&scope=${encodeURIComponent(scopes.join(' '))}&show_dialog=false`;
   
   res.json({ 
     authUrl,
@@ -316,7 +332,10 @@ app.post('/api/spotify/store-token', async (req, res) => {
       expiresAt: Date.now() + ((expiresIn || 3600) * 1000)
     });
     
-    await saveTokensToDatabase(userId, accessToken, refreshToken || null, expiresIn || 3600);
+    // Only persist to DB when we have a refresh token (avoids NOT NULL constraint failures)
+    if (refreshToken) {
+      await saveTokensToDatabase(userId, accessToken, refreshToken, expiresIn || 3600);
+    }
     
     console.log('📥 Token stored from frontend for user:', userId);
     res.json({ success: true, message: 'Token stored successfully' });
@@ -598,7 +617,8 @@ app.get('/api/health', (req, res) => {
       connected: !!pool,
       mode: process.env.DB_CONNECTION_STRING ? 'connectionString' : 'discrete',
       host: process.env.DB_HOST || undefined,
-      name: process.env.DB_NAME || undefined
+      name: process.env.DB_NAME || undefined,
+      lastError: lastDbError || undefined
     },
     spotify: {
       clientId: SPOTIFY_CLIENT_ID ? 'Configured' : 'Missing',
@@ -607,6 +627,23 @@ app.get('/api/health', (req, res) => {
       authenticatedUsers: userTokens.size
     }
   });
+});
+
+// On-demand DB check
+app.get('/api/health/db', async (req, res) => {
+  try {
+    if (!pool) {
+      await connectDB();
+    }
+    if (!pool) {
+      return res.status(503).json({ ok: false, connected: false, reason: 'dbPool not initialized', lastError: lastDbError });
+    }
+    const result = await pool.request().query('SELECT 1 as ok');
+    res.json({ ok: true, connected: true, result: result.recordset });
+  } catch (err) {
+    lastDbError = err?.message || String(err);
+    res.status(500).json({ ok: false, connected: false, error: lastDbError });
+  }
 });
 
 // Contact form endpoint
