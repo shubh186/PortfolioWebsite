@@ -400,7 +400,14 @@ async function refreshUserToken(userId) {
 
 // Get valid access token for user
 async function getUserAccessToken(userId = 'default_user') {
-  const userToken = userTokens.get(userId);
+  let userToken = userTokens.get(userId);
+  
+  // If token not in memory, try loading from database
+  if (!userToken && pool) {
+    console.log('⚠️ Token not in memory, attempting to load from database...');
+    await loadTokensFromDatabase();
+    userToken = userTokens.get(userId);
+  }
   
   if (!userToken) {
     console.log('❌ No token found for user:', userId);
